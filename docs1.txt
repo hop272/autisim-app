@@ -1,0 +1,113 @@
+# App Objective & Feature Specification
+## Working title: [TBD] — A daily-living support app for autistic adults
+
+---
+
+## 1. Purpose Statement
+
+Build a mobile/web app that reduces daily friction for autistic adults by supporting **executive function, sensory regulation, social/communication energy, and crisis recovery** — in one coherent tool rather than scattered single-purpose apps. Designed from lived experience, not a clinical or "awareness" framing.
+
+## 2. Design Principles (non-negotiable)
+
+These came up independently across all four brainstorms and should constrain every feature decision below:
+
+- **Visual over textual** — icons, color, and drag-and-drop take priority over walls of text.
+- **Low-friction input** — logging mood/energy/sensory state must take seconds, not minutes (taps/sliders, not forms).
+- **Calm, non-infantilizing tone** — no gamification-for-kids aesthetic by default; avoid cutesy "quest" framing unless targeting children specifically.
+- **Highly customizable** — colors, fonts, icon sets, and which modules are even visible should be user-controlled.
+- **Adapts to state, not just time** — the app should behave differently when the user is overwhelmed vs. regulated (see Recovery Mode, §3.6).
+- **Privacy-first** — sensory/mood/health data is sensitive; local-first storage or strong encryption, no ad-based model, clear data ownership.
+- **One problem solved well > everything half-done** — MVP should ship a small, tightly-integrated core rather than all modules at once.
+
+## 3. Core Feature Modules
+
+Deduplicated and merged from all four sources, grouped by function.
+
+### 3.1 Executive Function / Task Support
+- **Micro-step task breakdown**: user enters a vague goal ("clean kitchen," "make pasta"); app (AI-assisted) decomposes it into small, literal, sequential steps, shown **one at a time**.
+- **"I'm stuck" button**: surfaces just the next single action, not the whole list.
+- Optional per-step **energy cost estimate** and **timer with built-in breaks**.
+- Non-overwhelming progress acknowledgment (avoid excessive celebratory UI).
+- **Body-doubling / co-working timer**: virtual paired focus sessions.
+- **Ambiguous-message interpreter**: paste a vague email/text/instruction, get it restated literally and directly (also useful for workplace communication).
+
+### 3.2 Visual Routine & Schedule Planner
+- Icon-based daily timeline (e.g., 🥣 Breakfast → 🪥 Teeth → 👕 Clothes → 🎒 Bag → 🚶 Leave) rather than a plain time list.
+- Drag-and-drop reordering of routine blocks.
+- **Transition warnings**: gentle countdown notifications before an activity change (e.g., "10 min until we leave").
+- Bill/appointment tracker that converts dates into concrete action steps, not just calendar entries.
+
+### 3.3 Sensory Management
+- **Sensory check-in log**: track noise, light, smell, crowding, temperature, clothing comfort, mood, energy, and meltdown/shutdown events over time.
+- **Pattern detection**: surface correlations automatically (e.g., "80% of shutdowns happened after supermarket visits between 4–6pm"; "LED lighting reduces your energy ~30%").
+- **Environmental sensing**: use phone noise/light sensors to warn before entering a loud/bright venue.
+- **Crowdsourced sensory venue map**: rate cafes/shops/parks by lighting type, noise level, smell intensity, crowd density — plan routes around sensory preference, not just location.
+- **Sensory diet planner**: proactive reminders for stim/decompression breaks, not just reactive ones.
+
+### 3.4 Energy / "Spoon" Budgeting
+- Track energy as a budget rather than time as a budget. Assign energy costs to activities (sleep, work, socializing, travel, shopping, exercise — positive or negative).
+- App predicts remaining capacity in plain terms ("enough energy left for one medium task") instead of raw free hours.
+- **Social battery tracker**: log post-event energy drain, surface patterns (e.g., "parties drain you 2x faster than 1:1 hangouts").
+- Warn when a planned day is likely to overdraw the budget; suggest recovery blocks in advance.
+
+### 3.5 Communication & Social Support
+- **Pre-event prep**: enter context ("meeting my manager"); get conversation starters, likely questions, topics to avoid.
+- **Post-event debrief**: structured prompts ("how did it go," "what would you change") that process the event without spiraling into rumination — distinct from open-ended overthinking.
+- **Script library**: customizable, reusable scripts for recurring tricky interactions (ordering food, calling in sick, small talk).
+- **AAC-lite / text-to-speech mode**: fallback for moments speech is hard, usable discreetly in public.
+- Optional AI conversation practice with feedback on tone/phrasing (evaluate carefully — community trust in conversational AI is mixed; keep opt-in and transparent).
+
+### 3.6 Meltdown/Shutdown Prevention & Recovery
+- **Personalized crisis plan**, authored while calm: what helps, what to avoid, who to contact. Surfaces itself automatically when distress is detected or self-reported.
+- **"I'm overwhelmed" button** triggers **Recovery Mode**:
+  - Interface changes to large, high-contrast buttons, no animation, minimal text.
+  - One instruction at a time (e.g., drink water → move somewhere quieter → headphones on → decide whether to continue or postpone).
+  - Auto-mute non-essential notifications, dim screen.
+  - Optional one-tap contact to a trusted person.
+- Optional passive trend monitoring (sleep, screen time, calendar load, self-reported stress, wearable heart rate if available) to give early warnings *before* overload, not just respond after.
+
+### 3.7 Food & Routine Life-Admin (secondary/optional module)
+- Safe-foods list + current stock + simple meal suggestions from that list.
+- Basic nutritional gap flagging (e.g., "only carbohydrates logged today") — keep advisory, not restrictive/clinical.
+
+### 3.8 Decision Support (secondary/optional module)
+- Reduces decision fatigue: short guided questions (hungry? energy? budget? safe-food-only?) → narrows to 2–3 concrete suggestions, for food, clothing, transport, or activities.
+
+### 3.9 Unified Dashboard ("cockpit view")
+- Single screen surfacing: current energy, mood, sleep, sensory load, upcoming events, medication, hydration, weather/noise forecast for the day.
+- Purpose: reduce the need to open multiple modules to know "how is today going to go."
+
+## 4. Cross-Module Intelligence
+
+The differentiator versus existing single-purpose apps: **modules should share data**, not run in isolation.
+Example chain: poor sleep logged → lowers today's predicted energy budget → planner auto-suggests fewer/lighter tasks → if a known high-sensory event (e.g., travel) is on the calendar, app proactively reminds user to pack headphones.
+
+Other AI-assisted capabilities worth including:
+- Breaking down tasks and rephrasing ambiguous text (§3.1)
+- Predicting energy from historical patterns (§3.4)
+- Detecting recurring sensory/emotional triggers from logged data (§3.3, §3.6)
+- Summarizing long conversations or documents
+- Drafting/polishing replies to messages
+
+## 5. Explicit Non-Goals (for MVP)
+
+- Not a diagnostic or clinical tool; no medical claims.
+- Not a general-purpose mental health chatbot — conversational AI should be scoped, transparent, and opt-in given documented community skepticism toward AI "support."
+- Not aiming to replace human support networks — crisis features should route to real trusted contacts, not simulate them.
+
+## 6. Suggested MVP Scope
+
+Per the recommendation to combine complementary features rather than build everything at once, the MVP should ship:
+1. Micro-step task breakdown (§3.1)
+2. Sensory check-in log + basic pattern detection (§3.3)
+3. Energy/spoon budgeting (§3.4)
+4. Recovery Mode + crisis plan (§3.6)
+
+These four are the most cross-referenced and mutually reinforcing across all four source brainstorms, and together cover executive function, sensory regulation, energy management, and crisis response — the four most commonly cited pain points.
+
+## 7. Open Questions for Next Design Pass
+
+- Local-only storage vs. optional encrypted sync — decide before building the data model.
+- Wearable integration (heart rate, sleep) — MVP or post-MVP?
+- Should the sensory venue map (§3.3) be crowdsourced from day one, or single-user only until there's a user base to seed it?
+- How much AI (LLM) involvement is desired vs. simple rule-based logic — affects cost, privacy posture, and offline capability.
