@@ -1,5 +1,5 @@
 # App Objective & Feature Specification
-## Working title: [TBD] — A daily-living support app for autistic adults
+## Working title: [TBD] — A daily-living support app for autistic adults and young pepole 
 
 ---
 
@@ -111,3 +111,19 @@ These four are the most cross-referenced and mutually reinforcing across all fou
 - Wearable integration (heart rate, sleep) — MVP or post-MVP?
 - Should the sensory venue map (§3.3) be crowdsourced from day one, or single-user only until there's a user base to seed it?
 - How much AI (LLM) involvement is desired vs. simple rule-based logic — affects cost, privacy posture, and offline capability.
+
+
+
+
+system requirments 
+ 
+ must be able to run on both android  as a google play app 
+
+ must be an app not a website
+
+
+
+ use imports of health data from phone sensors smart watches and rings to contrubute to functions 
+
+
+ must add file structure diagaram 
