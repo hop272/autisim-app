@@ -15,9 +15,9 @@ export function renderRecoveryScreen(navigate: (screen: string) => void) {
         <ol>
           ${state.crisisPlan.groundingSteps.map(step => `<li>${step}</li>`).join('')}
         </ol>
-        ${createButton('Return to app', () => store.toggleRecoveryMode()).outerHTML}
       </div>
     `;
+    modeCard.querySelector('.stack')?.appendChild(createButton('Return to app', () => store.toggleRecoveryMode()));
     container.appendChild(modeCard);
     return container;
   }
@@ -29,9 +29,9 @@ export function renderRecoveryScreen(navigate: (screen: string) => void) {
     <div class="stack">
       <h3>Feeling overwhelmed?</h3>
       <p class="muted">Switch to a higher-contrast, one-step-at-a-time view that reduces decision load.</p>
-      ${createButton('Enter recovery mode', () => store.toggleRecoveryMode()).outerHTML}
     </div>
   `;
+  activateCard.querySelector('.stack')?.appendChild(createButton('Enter recovery mode', () => store.toggleRecoveryMode()));
   container.appendChild(activateCard);
 
   const planCard = createCard();

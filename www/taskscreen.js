@@ -1,11 +1,49 @@
 import { store } from './index2.js';
 import { createBadge, createButton, createCard, createSectionHeader } from './ui.js';
+const RULES = [
+    {
+        keywords: ['pasta', 'cook', 'food', 'dinner', 'make'],
+        prep: ['Wash your hands', 'Gather ingredients, pots, and utensils'],
+        steps: ['Fill a pot with water', 'Turn on the heat', 'Set a timer so you don’t forget'],
+        sensory: 'Kitchen sounds or smells can be strong. Consider headphones or a fan.',
+        cleanup: ['Turn off the heat source', 'Rinse used items']
+    },
+    {
+        keywords: ['clean', 'dishes', 'kitchen', 'tidy', 'wash up'],
+        prep: ['Put on gloves if you dislike wet textures', 'Clear a space for drying'],
+        steps: ['Rinse everything first', 'Put away 5 items that are out of place', 'Wipe just one surface'],
+        sensory: 'If the water noise is too much, try listening to music.',
+        cleanup: ['Dry your hands', 'Take a 5-minute transition break']
+    },
+    {
+        keywords: ['shower', 'bath', 'wash', 'hygiene'],
+        prep: ['Lay out a towel and clean clothes', 'Check the water temperature with your hand'],
+        steps: ['Get in', 'Use soap/shampoo', 'Dry off thoroughly'],
+        sensory: 'Dim the lights if they are too bright in the bathroom.',
+        cleanup: ['Hang up the towel', 'Moisturize if your skin feels tight']
+    },
+    {
+        keywords: ['email', 'message', 'call', 'admin', 'write'],
+        prep: ['Open the app or site you need', 'Have a glass of water nearby'],
+        steps: ['Write just the greeting', 'Write one main sentence', 'Read it once'],
+        sensory: 'Focus on the screen can be tiring. Look at something far away for 20 seconds.',
+        cleanup: ['Close the tab or app', 'Check it off your list']
+    }
+];
 function breakGoalIntoSteps(goal) {
-    const normalized = goal.trim();
+    const normalized = goal.toLowerCase();
+    const rule = RULES.find(r => r.keywords.some(k => normalized.includes(k)));
+    if (rule) {
+        const sensoryStep = rule.sensory ? [`💡 Sensory: ${rule.sensory}`] : [];
+        return [...sensoryStep, ...rule.prep, ...rule.steps, ...rule.cleanup];
+    }
     return [
-        `Gather what you need for ${normalized}`,
-        `Start with the first small piece of ${normalized}`,
-        `Check whether ${normalized} is complete enough for now`,
+        `Go to the place where you do "${goal}"`,
+        `Gather 3 tools you need for this`,
+        `Perform one physical action that takes < 2 minutes`,
+        `Check if it is "good enough" for now`,
+        `Put away any tools you used`,
+        `Acknowledge that "${goal}" is complete.`
     ];
 }
 export function renderTaskScreen(navigate) {

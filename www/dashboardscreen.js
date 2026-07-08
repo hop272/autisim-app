@@ -58,9 +58,9 @@ export function renderDashboardScreen(navigate) {
       <div class="stack">
         <h3>Tasks</h3>
         <p class="muted">Break a goal into small steps so it feels manageable.</p>
-        ${createButton('Open task support', () => navigate('tasks')).outerHTML}
       </div>
     `;
+        taskCard.querySelector('.stack')?.appendChild(createButton('Open task support', () => navigate('tasks')));
     }
     container.appendChild(taskCard);
     const sensoryCard = createCard();

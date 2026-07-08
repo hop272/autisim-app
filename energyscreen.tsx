@@ -45,12 +45,15 @@ export function renderEnergyScreen(navigate: (screen: string) => void) {
         <div class="energy-pill">${Math.round(state.currentEnergy)}%</div>
       </div>
       <div class="meter"><span style="width:${state.currentEnergy}%"></span></div>
-      <div class="row-between">
-        ${createButton('+5', () => store.setCurrentEnergy(state.currentEnergy + 5)).outerHTML}
-        ${createButton('-5', () => store.setCurrentEnergy(state.currentEnergy - 5)).outerHTML}
+      <div class="row-between" id="energy-actions">
       </div>
     </div>
   `;
+  const energyActions = main.querySelector('#energy-actions');
+  if (energyActions) {
+    energyActions.appendChild(createButton('+5', () => store.setCurrentEnergy(state.currentEnergy + 5)));
+    energyActions.appendChild(createButton('-5', () => store.setCurrentEnergy(state.currentEnergy - 5)));
+  }
   container.appendChild(main);
 
   const presetsCard = createCard();
