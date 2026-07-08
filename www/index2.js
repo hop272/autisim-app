@@ -1,3 +1,4 @@
+import { supabase } from './supabase.js';
 const STORAGE_KEY = 'autisim_app_state';
 const defaultCrisisPlan = {
     whatHelps: ['Headphones + music', 'Move to quiet room', 'Drink cold water', 'Weighted blanket'],
@@ -86,6 +87,8 @@ function createInitialState() {
 export function createAppStore() {
     let state = createInitialState();
     const listeners = new Set();
+    let isSyncing = false;
+    let skipNextSync = false;
     const saveToStorage = (nextState) => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
     };
@@ -94,6 +97,49 @@ export function createAppStore() {
         state = { ...state, ...next };
         saveToStorage(state);
         listeners.forEach(listener => listener(state));
+        if (state.user && !skipNextSync) {
+            debounceSync();
+        }
+        skipNextSync = false;
+    };
+    let syncTimeout = null;
+    const debounceSync = () => {
+        if (syncTimeout)
+            clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(() => {
+            store.syncToCloud();
+        }, 5000); // 5 second debounce for stability
+    };
+    const syncToCloud = async () => {
+        if (isSyncing || !state.user)
+            return;
+        isSyncing = true;
+        try {
+            const { user, ...syncableState } = state;
+            const { error } = await supabase
+                .from('user_state')
+                .upsert({
+                user_id: user.id,
+                state: {
+                    currentEnergy: syncableState.currentEnergy,
+                    energyEntries: syncableState.energyEntries,
+                    tasks: syncableState.tasks,
+                    activeTaskId: syncableState.activeTaskId,
+                    sensoryLogs: syncableState.sensoryLogs,
+                    crisisPlan: syncableState.crisisPlan,
+                },
+                updated_at: new Date().toISOString()
+            });
+            if (error) {
+                console.error('Cloud sync error:', error.message);
+            }
+        }
+        catch (e) {
+            console.error('Cloud sync network error:', e);
+        }
+        finally {
+            isSyncing = false;
+        }
     };
     return {
         getState: () => state,
@@ -158,9 +204,35 @@ export function createAppStore() {
         clearSensoryHistory: () => {
             setState({ sensoryLogs: [] });
         },
-        setUser: (user) => {
-            setState({ user });
-        }
+        setUser: async (user) => {
+            state.user = user; // Set directly to avoid loop
+            saveToStorage(state);
+            if (user) {
+                try {
+                    const { data, error } = await supabase
+                        .from('user_state')
+                        .select('state')
+                        .eq('user_id', user.id)
+                        .single();
+                    if (data && data.state) {
+                        skipNextSync = true;
+                        setState({
+                            currentEnergy: data.state.currentEnergy,
+                            energyEntries: data.state.energyEntries,
+                            tasks: data.state.tasks,
+                            activeTaskId: data.state.activeTaskId,
+                            sensoryLogs: data.state.sensoryLogs,
+                            crisisPlan: data.state.crisisPlan,
+                        });
+                    }
+                }
+                catch (e) {
+                    console.error('Initial pull error:', e);
+                }
+            }
+            listeners.forEach(l => l(state));
+        },
+        syncToCloud
     };
 }
 export const store = createAppStore();
