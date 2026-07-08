@@ -199,6 +199,18 @@ h1, h2, h3, p { margin: 0; }
   text-align: left;
 }
 
+.mini-button.active {
+  border-color: #3d7a8a;
+  background: #eaf4f6;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
 .energy-value.positive { color: #356a46; }
 .energy-value.negative { color: #9c4040; }
 

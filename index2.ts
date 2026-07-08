@@ -51,6 +51,13 @@ export interface CrisisPlan {
   lastUpdated: number;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  imageUrl?: string;
+}
+
 export interface AppState {
   isRecoveryMode: boolean;
   dailyEnergyBudget: number;
@@ -61,6 +68,7 @@ export interface AppState {
   sensoryLogs: SensoryLog[];
   crisisPlan: CrisisPlan;
   today: string;
+  user: User | null;
 }
 
 type Listener = (state: AppState) => void;
@@ -79,6 +87,7 @@ export interface AppStore {
   addSensoryLog: (log: Omit<SensoryLog, 'id'>) => void;
   updateCrisisPlan: (plan: Partial<CrisisPlan>) => void;
   clearSensoryHistory: () => void;
+  setUser: (user: User | null) => void;
 }
 
 const STORAGE_KEY = 'autisim_app_state';
@@ -165,6 +174,7 @@ function createInitialState(): AppState {
     ],
     crisisPlan: defaultCrisisPlan,
     today: new Date().toDateString(),
+    user: null,
   };
 }
 
@@ -245,6 +255,9 @@ export function createAppStore(): AppStore {
     },
     clearSensoryHistory: () => {
       setState({ sensoryLogs: [] });
+    },
+    setUser: (user: User | null) => {
+      setState({ user });
     }
   };
 }

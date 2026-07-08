@@ -3,6 +3,7 @@ import { renderEnergyScreen } from './energyscreen.js';
 import { renderRecoveryScreen } from './recoveryscreen.js';
 import { renderSensoryScreen } from './sensoryscreen.js';
 import { renderTaskScreen } from './taskscreen.js';
+import { renderAccountScreen } from './accountscreen.js';
 import { createButton, createCard } from './ui.js';
 import { store } from './index2.js';
 const root = document.getElementById('app');
@@ -35,6 +36,7 @@ function renderShell() {
         { id: 'sensory', label: 'Sensory' },
         { id: 'energy', label: 'Energy' },
         { id: 'recovery', label: 'Recovery' },
+        { id: 'account', label: 'Account' },
     ];
     screens.forEach(screen => {
         const button = createButton(screen.label, () => {
@@ -73,6 +75,12 @@ function renderShell() {
             break;
         case 'recovery':
             content.appendChild(renderRecoveryScreen((screen) => {
+                currentScreen = screen;
+                renderShell();
+            }));
+            break;
+        case 'account':
+            content.appendChild(renderAccountScreen((screen) => {
                 currentScreen = screen;
                 renderShell();
             }));

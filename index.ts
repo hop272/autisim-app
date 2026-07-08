@@ -1,10 +1,11 @@
-export type ScreenName = 'dashboard' | 'tasks' | 'sensory' | 'energy' | 'recovery';
+export type ScreenName = 'dashboard' | 'tasks' | 'sensory' | 'energy' | 'recovery' | 'account';
 
 import { renderDashboardScreen } from './dashboardscreen.js';
 import { renderEnergyScreen } from './energyscreen.js';
 import { renderRecoveryScreen } from './recoveryscreen.js';
 import { renderSensoryScreen } from './sensoryscreen.js';
 import { renderTaskScreen } from './taskscreen.js';
+import { renderAccountScreen } from './accountscreen.js';
 import { createButton, createCard } from './ui.js';
 import { store } from './index2.js';
 
@@ -43,6 +44,7 @@ function renderShell() {
     { id: 'sensory', label: 'Sensory' },
     { id: 'energy', label: 'Energy' },
     { id: 'recovery', label: 'Recovery' },
+    { id: 'account', label: 'Account' },
   ];
 
   screens.forEach(screen => {
@@ -83,6 +85,12 @@ function renderShell() {
       break;
     case 'recovery':
       content.appendChild(renderRecoveryScreen((screen: string) => {
+        currentScreen = screen as ScreenName;
+        renderShell();
+      }));
+      break;
+    case 'account':
+      content.appendChild(renderAccountScreen((screen: string) => {
         currentScreen = screen as ScreenName;
         renderShell();
       }));

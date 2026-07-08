@@ -80,6 +80,7 @@ function createInitialState() {
         ],
         crisisPlan: defaultCrisisPlan,
         today: new Date().toDateString(),
+        user: null,
     };
 }
 export function createAppStore() {
@@ -156,6 +157,9 @@ export function createAppStore() {
         },
         clearSensoryHistory: () => {
             setState({ sensoryLogs: [] });
+        },
+        setUser: (user) => {
+            setState({ user });
         }
     };
 }
