@@ -5,9 +5,9 @@ import { supabase } from './supabase.js';
 export function renderAccountScreen(navigate: (screen: string) => void) {
   const state = store.getState();
   const container = document.createElement('div');
-  container.className = 'screen-card';
-  container.appendChild(createSectionHeader('Account', 'Sign in to sync your data across devices.'));
+  container.className = 'stack';
 
+  // 1. Profile Section
   const authCard = createCard();
   if (state.user && state.user.id !== 'local-user') {
     authCard.innerHTML = `
@@ -32,7 +32,7 @@ export function renderAccountScreen(navigate: (screen: string) => void) {
     authCard.innerHTML = `
       <div class="stack">
         <h3>Sign In / Create Account</h3>
-        <p class="muted">Enter your email and password to sync your progress.</p>
+        <p class="muted">Sync your progress and routines across devices.</p>
 
         <div class="field-group">
           <label style="font-size: 0.85rem; color: var(--text-secondary);">Email</label>
@@ -90,10 +90,39 @@ export function renderAccountScreen(navigate: (screen: string) => void) {
   }
   container.appendChild(authCard);
 
-  const footer = document.createElement('div');
-  footer.className = 'stack';
-  footer.appendChild(createButton('Back to dashboard', () => navigate('dashboard')));
-  container.appendChild(footer);
+  // 2. Settings Placeholders
+  const settingsCard = createCard();
+  settingsCard.appendChild(createSectionHeader('App Settings', 'Customise your experience (Coming Soon)'));
+  settingsCard.innerHTML += `
+    <div class="stack compact">
+      <div class="row-between" style="opacity: 0.6;">
+        <span>Dark Mode</span>
+        <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
+      </div>
+      <div class="row-between" style="opacity: 0.6;">
+        <span>Notification Reminders</span>
+        <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
+      </div>
+      <div class="row-between" style="opacity: 0.6;">
+        <span>High Contrast Mode</span>
+        <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
+      </div>
+    </div>
+  `;
+  container.appendChild(settingsCard);
+
+  // 3. Preferences Section
+  const preferenceCard = createCard();
+  preferenceCard.appendChild(createSectionHeader('Preferences', 'Manage your daily targets.'));
+  preferenceCard.innerHTML += `
+    <div class="stack compact">
+      <div class="field-group">
+        <label style="font-size: 0.85rem; color: var(--text-secondary);">Daily Energy Goal (%)</label>
+        <input type="number" class="field" value="${state.dailyEnergyBudget}" disabled style="background: #fbfcfe;" />
+      </div>
+    </div>
+  `;
+  container.appendChild(preferenceCard);
 
   return container;
 }

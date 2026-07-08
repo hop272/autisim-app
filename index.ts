@@ -19,12 +19,42 @@ function renderShell() {
 
   root.innerHTML = '';
   const state = store.getState();
-  const app = document.createElement('div');
-  app.className = 'app-shell';
 
   if (state.isRecoveryMode && currentScreen !== 'recovery') {
       currentScreen = 'recovery';
   }
+
+  // Specialized view for Account Dashboard
+  if (currentScreen === 'account') {
+    const accountView = document.createElement('div');
+    accountView.className = 'app-shell account-dashboard';
+
+    const backHeader = document.createElement('header');
+    backHeader.className = 'app-header';
+    backHeader.style.padding = '15px 24px';
+    backHeader.innerHTML = `<div><h1>Account & Settings</h1></div>`;
+
+    const backBtn = createButton('← Back to App', () => {
+      currentScreen = 'dashboard';
+      renderShell();
+    }, 'secondary');
+    backBtn.style.borderRadius = '12px';
+    backHeader.appendChild(backBtn);
+
+    const content = document.createElement('main');
+    content.className = 'screen-content';
+    content.appendChild(renderAccountScreen((screen: string) => {
+      currentScreen = screen as ScreenName;
+      renderShell();
+    }));
+
+    accountView.appendChild(backHeader);
+    accountView.appendChild(content);
+    root.appendChild(accountView);
+    return;
+  }
+
+  const app = document.createElement('div');
 
   const header = document.createElement('header');
   header.className = 'app-header';
@@ -36,6 +66,16 @@ function renderShell() {
     </div>
   `;
 
+  const accountBtn = document.createElement('button');
+  accountBtn.className = `account-button ${(currentScreen as string) === 'account' ? 'active' : ''}`;
+  accountBtn.innerHTML = state.user?.imageUrl || '👤';
+  accountBtn.title = 'Account';
+  accountBtn.addEventListener('click', () => {
+    currentScreen = 'account';
+    renderShell();
+  });
+  header.appendChild(accountBtn);
+
   const nav = document.createElement('nav');
   nav.className = 'nav-list';
   const screens: Array<{ id: ScreenName; label: string }> = [
@@ -44,7 +84,6 @@ function renderShell() {
     { id: 'sensory', label: 'Sensory' },
     { id: 'energy', label: 'Energy' },
     { id: 'recovery', label: 'Recovery' },
-    { id: 'account', label: 'Account' },
   ];
 
   screens.forEach(screen => {
@@ -85,12 +124,6 @@ function renderShell() {
       break;
     case 'recovery':
       content.appendChild(renderRecoveryScreen((screen: string) => {
-        currentScreen = screen as ScreenName;
-        renderShell();
-      }));
-      break;
-    case 'account':
-      content.appendChild(renderAccountScreen((screen: string) => {
         currentScreen = screen as ScreenName;
         renderShell();
       }));
