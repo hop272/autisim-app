@@ -1,3 +1,4 @@
+const STORAGE_KEY = 'autisim_app_state';
 const defaultCrisisPlan = {
     whatHelps: ['Headphones + music', 'Move to quiet room', 'Drink cold water', 'Weighted blanket'],
     whatToAvoid: ['Bright lights', 'Crowds', 'Loud conversations', 'Making decisions'],
@@ -13,6 +14,15 @@ const defaultCrisisPlan = {
     lastUpdated: Date.now(),
 };
 function createInitialState() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            return JSON.parse(saved);
+        }
+        catch (e) {
+            console.error('Failed to parse saved state', e);
+        }
+    }
     return {
         isRecoveryMode: false,
         dailyEnergyBudget: 100,
@@ -75,9 +85,13 @@ function createInitialState() {
 export function createAppStore() {
     let state = createInitialState();
     const listeners = new Set();
+    const saveToStorage = (nextState) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+    };
     const setState = (update) => {
         const next = typeof update === 'function' ? update(state) : update;
         state = { ...state, ...next };
+        saveToStorage(state);
         listeners.forEach(listener => listener(state));
     };
     return {
@@ -140,6 +154,9 @@ export function createAppStore() {
                 crisisPlan: { ...state.crisisPlan, ...plan, lastUpdated: Date.now() },
             });
         },
+        clearSensoryHistory: () => {
+            setState({ sensoryLogs: [] });
+        }
     };
 }
 export const store = createAppStore();

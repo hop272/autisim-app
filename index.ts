@@ -100,6 +100,20 @@ function renderShell() {
   summaryCard.appendChild(summary);
 
   app.appendChild(header);
+
+  if (state.currentEnergy <= 0 && !state.isRecoveryMode) {
+    const warning = createCard();
+    warning.style.backgroundColor = '#FAEAEA';
+    warning.style.borderColor = '#A64040';
+    warning.innerHTML = `
+      <div class="stack">
+        <h3 style="color: #A64040">⚡ Energy Depleted</h3>
+        <p>Your battery is at 0%. Please prioritize immediate rest and avoid new tasks.</p>
+      </div>
+    `;
+    app.appendChild(warning);
+  }
+
   if (!state.isRecoveryMode) {
     app.appendChild(nav);
   }

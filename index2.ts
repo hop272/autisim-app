@@ -78,7 +78,10 @@ export interface AppStore {
   clearTask: (id: string) => void;
   addSensoryLog: (log: Omit<SensoryLog, 'id'>) => void;
   updateCrisisPlan: (plan: Partial<CrisisPlan>) => void;
+  clearSensoryHistory: () => void;
 }
+
+const STORAGE_KEY = 'autisim_app_state';
 
 const defaultCrisisPlan: CrisisPlan = {
   whatHelps: ['Headphones + music', 'Move to quiet room', 'Drink cold water', 'Weighted blanket'],
@@ -96,6 +99,15 @@ const defaultCrisisPlan: CrisisPlan = {
 };
 
 function createInitialState(): AppState {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse saved state', e);
+    }
+  }
+
   return {
     isRecoveryMode: false,
     dailyEnergyBudget: 100,
@@ -160,9 +172,14 @@ export function createAppStore(): AppStore {
   let state = createInitialState();
   const listeners = new Set<Listener>();
 
+  const saveToStorage = (nextState: AppState) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+  };
+
   const setState = (update: Partial<AppState> | ((prev: AppState) => Partial<AppState>)) => {
     const next = typeof update === 'function' ? update(state) : update;
     state = { ...state, ...next };
+    saveToStorage(state);
     listeners.forEach(listener => listener(state));
   };
 
@@ -226,6 +243,9 @@ export function createAppStore(): AppStore {
         crisisPlan: { ...state.crisisPlan, ...plan, lastUpdated: Date.now() },
       });
     },
+    clearSensoryHistory: () => {
+      setState({ sensoryLogs: [] });
+    }
   };
 }
 

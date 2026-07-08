@@ -92,7 +92,15 @@ export function renderSensoryScreen(navigate) {
     }
     container.appendChild(patternCard);
     const historyCard = createCard();
-    historyCard.appendChild(createSectionHeader('Recent history'));
+    const historyHeader = createSectionHeader('Recent history');
+    historyCard.appendChild(historyHeader);
+    if (state.sensoryLogs.length > 0) {
+        historyHeader.appendChild(createButton('Clear history', () => {
+            if (confirm('Clear all sensory logs?')) {
+                store.clearSensoryHistory();
+            }
+        }, 'secondary'));
+    }
     state.sensoryLogs.slice(0, 4).forEach(log => {
         const entry = document.createElement('div');
         entry.className = 'history-entry';

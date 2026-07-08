@@ -26,6 +26,8 @@ export function renderDashboardScreen(navigate: (screen: string) => void) {
   container.appendChild(createSectionHeader('Today at a glance', 'A calm cockpit for energy, tasks, and sensory state.'));
 
   const energyCard = createCard();
+  energyCard.style.cursor = 'pointer';
+  energyCard.addEventListener('click', () => navigate('energy'));
   energyCard.innerHTML = `
     <div class="stack">
       <div class="row-between">
