@@ -1,5 +1,5 @@
-import { store } from './index2';
-import { createBadge, createButton, createCard, createSectionHeader } from './ui';
+import { store } from './index2.js';
+import { createBadge, createButton, createCard, createSectionHeader } from './ui.js';
 function breakGoalIntoSteps(goal) {
     const normalized = goal.trim();
     return [

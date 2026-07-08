@@ -7,8 +7,9 @@
     "strict": true,
     "skipLibCheck": true,
     "rootDir": ".",
-    "outDir": "dist",
-    "jsx": "preserve"
+    "outDir": "www",
+    "jsx": "react"
   },
-  "include": ["*.ts", "*.tsx"]
+  "include": ["*.ts", "*.tsx"],
+  "exclude": ["www"]
 }

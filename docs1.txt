@@ -5,7 +5,7 @@
 
 ## 1. Purpose Statement
 
-Build a mobile/web app that reduces daily friction for autistic adults by supporting **executive function, sensory regulation, social/communication energy, and crisis recovery** — in one coherent tool rather than scattered single-purpose apps. Designed from lived experience, not a clinical or "awareness" framing.
+Build a mobile app that reduces daily friction for autistic adults by supporting **executive function, sensory regulation, social/communication energy, and crisis recovery** — in one coherent tool rather than scattered single-purpose apps. Designed from lived experience, not a clinical or "awareness" framing.
 
 ## 2. Design Principles (non-negotiable)
 
@@ -77,7 +77,33 @@ Deduplicated and merged from all four sources, grouped by function.
 - Single screen surfacing: current energy, mood, sleep, sensory load, upcoming events, medication, hydration, weather/noise forecast for the day.
 - Purpose: reduce the need to open multiple modules to know "how is today going to go."
 
-## 4. Cross-Module Intelligence
+## 4. File Structure Diagram
+
+```mermaid
+flowchart TD
+    Root[Project Root]
+    Root --> Logic[App Logic .ts/.tsx files]
+    Root --> WebAssets[www/ - Built assets for Capacitor]
+    Root --> AndroidFolder[android/ - Native wrapper]
+    Root --> Config[Configuration Files]
+
+    Logic --> Index[index.ts - Entry Point]
+    Logic --> Store[index2.ts - State Management]
+    Logic --> Screens[dashboardscreen.tsx, taskscreen.tsx, etc.]
+    Logic --> UI[ui.tsx - UI Components]
+
+    WebAssets --> IndexHTML[index.html]
+    WebAssets --> StylesCSS[styles.css]
+    WebAssets --> JS[Compiled .js files]
+
+    Config --> CapConfig[capacitor.config.ts]
+    Config --> PackageJson[package.json]
+    Config --> TSConfig[tsconfig.json]
+
+    AndroidFolder --> APK[Generated Android App]
+```
+
+## 5. Cross-Module Intelligence
 
 The differentiator versus existing single-purpose apps: **modules should share data**, not run in isolation.
 Example chain: poor sleep logged → lowers today's predicted energy budget → planner auto-suggests fewer/lighter tasks → if a known high-sensory event (e.g., travel) is on the calendar, app proactively reminds user to pack headphones.
@@ -119,7 +145,7 @@ system requirments
  
  must be able to run on both android  as a google play app 
 
- must be an app not a website
+ must not be a website  only an app
 
 
 

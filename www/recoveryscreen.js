@@ -1,5 +1,5 @@
-import { store } from './index2';
-import { createButton, createCard, createSectionHeader } from './ui';
+import { store } from './index2.js';
+import { createButton, createCard, createSectionHeader } from './ui.js';
 export function renderRecoveryScreen(navigate) {
     const state = store.getState();
     const container = document.createElement('div');

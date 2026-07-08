@@ -1,106 +1,112 @@
-export const Colors = {
-  // Calm teal-slate palette — chosen for sensory safety, not clinical aesthetic
-  primary: '#3D7A8A',       // calm teal
-  primaryLight: '#EAF4F6',
-  primaryDark: '#2A5A68',
+export type ScreenName = 'dashboard' | 'tasks' | 'sensory' | 'energy' | 'recovery';
 
-  secondary: '#6B7FA3',     // muted slate-blue
-  secondaryLight: '#EEF1F7',
+import { renderDashboardScreen } from './dashboardscreen.js';
+import { renderEnergyScreen } from './energyscreen.js';
+import { renderRecoveryScreen } from './recoveryscreen.js';
+import { renderSensoryScreen } from './sensoryscreen.js';
+import { renderTaskScreen } from './taskscreen.js';
+import { createButton, createCard } from './ui.js';
+import { store } from './index2.js';
 
-  accent: '#8B6BA8',        // soft purple for highlights
-  accentLight: '#F2EEF8',
+const root = document.getElementById('app');
+let currentScreen: ScreenName = 'dashboard';
 
-  // Semantic
-  success: '#4A8C6A',
-  successLight: '#EBF4EE',
-  warning: '#B07D3A',
-  warningLight: '#FBF2E6',
-  danger: '#A64040',
-  dangerLight: '#FAEAEA',
+function renderShell() {
+  if (!root) {
+    return;
+  }
 
-  // Energy levels
-  energyHigh: '#4A8C6A',
-  energyMid: '#B07D3A',
-  energyLow: '#A64040',
+  root.innerHTML = '';
+  const state = store.getState();
+  const app = document.createElement('div');
+  app.className = 'app-shell';
 
-  // Sensory intensity
-  sensoryLow: '#4A8C6A',
-  sensoryMid: '#B07D3A',
-  sensoryHigh: '#A64040',
+  if (state.isRecoveryMode && currentScreen !== 'recovery') {
+      currentScreen = 'recovery';
+  }
 
-  // Neutrals
-  bg: '#F7F8FA',
-  surface: '#FFFFFF',
-  surfaceAlt: '#F0F2F5',
-  border: '#E2E6EC',
-  borderStrong: '#C8CDD6',
+  const header = document.createElement('header');
+  header.className = 'app-header';
+  header.innerHTML = `
+    <div>
+      <p class="eyebrow">Autism support app</p>
+      <h1>Daily support</h1>
+      <p class="subtle">Calm tools for energy, sensory regulation, and recovery.</p>
+    </div>
+  `;
 
-  textPrimary: '#1C2536',
-  textSecondary: '#5A6478',
-  textMuted: '#8E97A8',
-  textInverse: '#FFFFFF',
+  const nav = document.createElement('nav');
+  nav.className = 'nav-list';
+  const screens: Array<{ id: ScreenName; label: string }> = [
+    { id: 'dashboard', label: 'Home' },
+    { id: 'tasks', label: 'Tasks' },
+    { id: 'sensory', label: 'Sensory' },
+    { id: 'energy', label: 'Energy' },
+    { id: 'recovery', label: 'Recovery' },
+  ];
 
-  // Recovery mode overrides (high contrast, calm)
-  recoveryBg: '#0F1923',
-  recoverySurface: '#1A2A3A',
-  recoveryText: '#E8F4F8',
-  recoveryPrimary: '#4AADCA',
-  recoveryDanger: '#E07070',
-};
+  screens.forEach(screen => {
+    const button = createButton(screen.label, () => {
+      currentScreen = screen.id;
+      renderShell();
+    }, screen.id === currentScreen ? 'primary' : 'secondary');
+    button.classList.add('nav-button');
+    nav.appendChild(button);
+  });
 
-export const Spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-};
+  const content = document.createElement('main');
+  content.className = 'screen-content';
+  switch (currentScreen) {
+    case 'dashboard':
+      content.appendChild(renderDashboardScreen((screen: string) => {
+        currentScreen = screen as ScreenName;
+        renderShell();
+      }));
+      break;
+    case 'tasks':
+      content.appendChild(renderTaskScreen((screen: string) => {
+        currentScreen = screen as ScreenName;
+        renderShell();
+      }));
+      break;
+    case 'sensory':
+      content.appendChild(renderSensoryScreen((screen: string) => {
+        currentScreen = screen as ScreenName;
+        renderShell();
+      }));
+      break;
+    case 'energy':
+      content.appendChild(renderEnergyScreen((screen: string) => {
+        currentScreen = screen as ScreenName;
+        renderShell();
+      }));
+      break;
+    case 'recovery':
+      content.appendChild(renderRecoveryScreen((screen: string) => {
+        currentScreen = screen as ScreenName;
+        renderShell();
+      }));
+      break;
+  }
 
-export const Radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  full: 9999,
-};
+  const summaryCard = createCard();
+  const summary = document.createElement('div');
+  summary.className = 'summary-strip';
+  summary.innerHTML = `
+    <div><strong>Energy</strong><span>${Math.round(state.currentEnergy)}%</span></div>
+    <div><strong>Recovery</strong><span>${state.isRecoveryMode ? 'On' : 'Ready'}</span></div>
+    <div><strong>Tasks</strong><span>${state.tasks.length}</span></div>
+  `;
+  summaryCard.appendChild(summary);
 
-export const Typography = {
-  size: {
-    xs: 11,
-    sm: 13,
-    md: 15,
-    lg: 17,
-    xl: 20,
-    xxl: 24,
-    xxxl: 32,
-  },
-  weight: {
-    regular: '400' as const,
-    medium: '500' as const,
-    semibold: '600' as const,
-    bold: '700' as const,
-  },
-  lineHeight: {
-    tight: 1.2,
-    normal: 1.5,
-    relaxed: 1.7,
-  },
-};
+  app.appendChild(header);
+  if (!state.isRecoveryMode) {
+    app.appendChild(nav);
+  }
+  app.appendChild(summaryCard);
+  app.appendChild(content);
+  root.appendChild(app);
+}
 
-export const Shadow = {
-  sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-};
+renderShell();
+store.subscribe(() => renderShell());

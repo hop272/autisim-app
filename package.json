@@ -1,17 +1,19 @@
 ﻿{
   "name": "autisim-app",
   "private": true,
+  "version": "1.0.0",
+  "description": "Daily-living support app for autistic adults",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:android": "npm run build && npx cap sync android",
     "android": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
     "@capacitor/core": "^6.2.0"
   },
   "devDependencies": {
-    "@capacitor/android": "^6.2.0",
-    "@capacitor/cli": "^6.2.0",
     "typescript": "^5.9.3"
   }
 }

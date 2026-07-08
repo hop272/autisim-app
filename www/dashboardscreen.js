@@ -1,5 +1,5 @@
-import { store } from './index2';
-import { createBadge, createButton, createCard, createSectionHeader } from './ui';
+import { store } from './index2.js';
+import { createBadge, createButton, createCard, createSectionHeader } from './ui.js';
 function getTimeAgo(timestamp) {
     const diff = Date.now() - timestamp;
     const hour = 3600000;
@@ -70,7 +70,7 @@ export function renderDashboardScreen(navigate) {
         <h3>Sensory snapshot</h3>
         ${latestSensory ? `<span class="muted">${getTimeAgo(latestSensory.timestamp)}</span>` : ''}
       </div>
-      ${latestSensory ? `<p class="muted">Noise ${latestSensory.noise}/10 â€¢ Light ${latestSensory.light}/10 â€¢ Crowd ${latestSensory.crowding}/10</p>` : '<p class="muted">No recent check-in yet.</p>'}
+      ${latestSensory ? `<p class="muted">Noise ${latestSensory.noise}/10 • Light ${latestSensory.light}/10 • Crowd ${latestSensory.crowding}/10</p>` : '<p class="muted">No recent check-in yet.</p>'}
     </div>
   `;
     container.appendChild(sensoryCard);

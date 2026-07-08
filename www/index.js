@@ -1,94 +1,99 @@
-export const Colors = {
-    // Calm teal-slate palette — chosen for sensory safety, not clinical aesthetic
-    primary: '#3D7A8A', // calm teal
-    primaryLight: '#EAF4F6',
-    primaryDark: '#2A5A68',
-    secondary: '#6B7FA3', // muted slate-blue
-    secondaryLight: '#EEF1F7',
-    accent: '#8B6BA8', // soft purple for highlights
-    accentLight: '#F2EEF8',
-    // Semantic
-    success: '#4A8C6A',
-    successLight: '#EBF4EE',
-    warning: '#B07D3A',
-    warningLight: '#FBF2E6',
-    danger: '#A64040',
-    dangerLight: '#FAEAEA',
-    // Energy levels
-    energyHigh: '#4A8C6A',
-    energyMid: '#B07D3A',
-    energyLow: '#A64040',
-    // Sensory intensity
-    sensoryLow: '#4A8C6A',
-    sensoryMid: '#B07D3A',
-    sensoryHigh: '#A64040',
-    // Neutrals
-    bg: '#F7F8FA',
-    surface: '#FFFFFF',
-    surfaceAlt: '#F0F2F5',
-    border: '#E2E6EC',
-    borderStrong: '#C8CDD6',
-    textPrimary: '#1C2536',
-    textSecondary: '#5A6478',
-    textMuted: '#8E97A8',
-    textInverse: '#FFFFFF',
-    // Recovery mode overrides (high contrast, calm)
-    recoveryBg: '#0F1923',
-    recoverySurface: '#1A2A3A',
-    recoveryText: '#E8F4F8',
-    recoveryPrimary: '#4AADCA',
-    recoveryDanger: '#E07070',
-};
-export const Spacing = {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-    xxl: 48,
-};
-export const Radius = {
-    sm: 8,
-    md: 12,
-    lg: 16,
-    xl: 24,
-    full: 9999,
-};
-export const Typography = {
-    size: {
-        xs: 11,
-        sm: 13,
-        md: 15,
-        lg: 17,
-        xl: 20,
-        xxl: 24,
-        xxxl: 32,
-    },
-    weight: {
-        regular: '400',
-        medium: '500',
-        semibold: '600',
-        bold: '700',
-    },
-    lineHeight: {
-        tight: 1.2,
-        normal: 1.5,
-        relaxed: 1.7,
-    },
-};
-export const Shadow = {
-    sm: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.06,
-        shadowRadius: 3,
-        elevation: 2,
-    },
-    md: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-};
+import { renderDashboardScreen } from './dashboardscreen.js';
+import { renderEnergyScreen } from './energyscreen.js';
+import { renderRecoveryScreen } from './recoveryscreen.js';
+import { renderSensoryScreen } from './sensoryscreen.js';
+import { renderTaskScreen } from './taskscreen.js';
+import { createButton, createCard } from './ui.js';
+import { store } from './index2.js';
+const root = document.getElementById('app');
+let currentScreen = 'dashboard';
+function renderShell() {
+    if (!root) {
+        return;
+    }
+    root.innerHTML = '';
+    const state = store.getState();
+    const app = document.createElement('div');
+    app.className = 'app-shell';
+    if (state.isRecoveryMode && currentScreen !== 'recovery') {
+        currentScreen = 'recovery';
+    }
+    const header = document.createElement('header');
+    header.className = 'app-header';
+    header.innerHTML = `
+    <div>
+      <p class="eyebrow">Autism support app</p>
+      <h1>Daily support</h1>
+      <p class="subtle">Calm tools for energy, sensory regulation, and recovery.</p>
+    </div>
+  `;
+    const nav = document.createElement('nav');
+    nav.className = 'nav-list';
+    const screens = [
+        { id: 'dashboard', label: 'Home' },
+        { id: 'tasks', label: 'Tasks' },
+        { id: 'sensory', label: 'Sensory' },
+        { id: 'energy', label: 'Energy' },
+        { id: 'recovery', label: 'Recovery' },
+    ];
+    screens.forEach(screen => {
+        const button = createButton(screen.label, () => {
+            currentScreen = screen.id;
+            renderShell();
+        }, screen.id === currentScreen ? 'primary' : 'secondary');
+        button.classList.add('nav-button');
+        nav.appendChild(button);
+    });
+    const content = document.createElement('main');
+    content.className = 'screen-content';
+    switch (currentScreen) {
+        case 'dashboard':
+            content.appendChild(renderDashboardScreen((screen) => {
+                currentScreen = screen;
+                renderShell();
+            }));
+            break;
+        case 'tasks':
+            content.appendChild(renderTaskScreen((screen) => {
+                currentScreen = screen;
+                renderShell();
+            }));
+            break;
+        case 'sensory':
+            content.appendChild(renderSensoryScreen((screen) => {
+                currentScreen = screen;
+                renderShell();
+            }));
+            break;
+        case 'energy':
+            content.appendChild(renderEnergyScreen((screen) => {
+                currentScreen = screen;
+                renderShell();
+            }));
+            break;
+        case 'recovery':
+            content.appendChild(renderRecoveryScreen((screen) => {
+                currentScreen = screen;
+                renderShell();
+            }));
+            break;
+    }
+    const summaryCard = createCard();
+    const summary = document.createElement('div');
+    summary.className = 'summary-strip';
+    summary.innerHTML = `
+    <div><strong>Energy</strong><span>${Math.round(state.currentEnergy)}%</span></div>
+    <div><strong>Recovery</strong><span>${state.isRecoveryMode ? 'On' : 'Ready'}</span></div>
+    <div><strong>Tasks</strong><span>${state.tasks.length}</span></div>
+  `;
+    summaryCard.appendChild(summary);
+    app.appendChild(header);
+    if (!state.isRecoveryMode) {
+        app.appendChild(nav);
+    }
+    app.appendChild(summaryCard);
+    app.appendChild(content);
+    root.appendChild(app);
+}
+renderShell();
+store.subscribe(() => renderShell());

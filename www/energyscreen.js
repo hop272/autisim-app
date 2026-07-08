@@ -1,5 +1,5 @@
-import { store } from './index2';
-import { createButton, createCard, createSectionHeader } from './ui';
+import { store } from './index2.js';
+import { createButton, createCard, createSectionHeader } from './ui.js';
 const presets = [
     { label: 'Good sleep', type: 'rest', cost: 35 },
     { label: 'Crowded social event', type: 'social', cost: -24 },
@@ -62,7 +62,7 @@ export function renderEnergyScreen(navigate) {
     presetsCard.appendChild(presetList);
     container.appendChild(presetsCard);
     const entriesCard = createCard();
-    entriesCard.appendChild(createSectionHeader('Todayâ€™s entries'));
+    entriesCard.appendChild(createSectionHeader('Today’s entries'));
     if (todayEntries.length === 0) {
         entriesCard.appendChild(document.createTextNode('No entries yet.'));
     }

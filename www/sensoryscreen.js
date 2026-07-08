@@ -1,5 +1,5 @@
-import { store } from './index2';
-import { createBadge, createButton, createCard, createSectionHeader, createSlider } from './ui';
+import { store } from './index2.js';
+import { createBadge, createButton, createCard, createSectionHeader, createSlider } from './ui.js';
 function analyzePatterns(logs) {
     const insights = [];
     if (logs.length < 2) {
@@ -101,7 +101,7 @@ export function renderSensoryScreen(navigate) {
         <strong>${log.location ?? 'Check-in'}</strong>
         ${createBadge(log.eventType ?? 'Logged').outerHTML}
       </div>
-      <p class="muted">Noise ${log.noise}/10 â€¢ Light ${log.light}/10 â€¢ Mood ${log.mood}/10</p>
+      <p class="muted">Noise ${log.noise}/10 • Light ${log.light}/10 • Mood ${log.mood}/10</p>
     `;
         historyCard.appendChild(entry);
     });
