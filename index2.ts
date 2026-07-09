@@ -44,6 +44,13 @@ export interface EnergyEntry {
   note?: string;
 }
 
+export interface EnergyPreset {
+  id: string;
+  label: string;
+  type: 'work' | 'social' | 'travel' | 'rest' | 'personal' | 'other';
+  cost: number;
+}
+
 export interface CrisisPlan {
   whatHelps: string[];
   whatToAvoid: string[];
@@ -91,6 +98,7 @@ export interface AppState {
   dailyEnergyBudget: number;
   currentEnergy: number;
   energyEntries: EnergyEntry[];
+  energyPresets: EnergyPreset[];
   tasks: Task[];
   activeTaskId: string | null;
   sensoryLogs: SensoryLog[];
@@ -113,6 +121,8 @@ export interface AppStore {
   toggleRecoveryMode: () => void;
   setCurrentEnergy: (value: number) => void;
   addEnergyEntry: (entry: Omit<EnergyEntry, 'id'>) => void;
+  addEnergyPreset: (preset: Omit<EnergyPreset, 'id'>) => void;
+  removeEnergyPreset: (id: string) => void;
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'currentStepIndex'>) => void;
   completeStep: (taskId: string, stepIndex: number) => void;
   setActiveTask: (id: string | null) => void;
@@ -149,17 +159,16 @@ const defaultCrisisPlan: CrisisPlan = {
   lastUpdated: Date.now(),
 };
 
-function createInitialState(): AppState {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch (e) {
-      console.error('Failed to parse saved state', e);
-    }
-  }
+const defaultEnergyPresets: EnergyPreset[] = [
+  { id: '1', label: 'Good sleep', type: 'rest', cost: 35 },
+  { id: '2', label: 'Crowded social event', type: 'social', cost: -24 },
+  { id: '3', label: 'Focused work block', type: 'work', cost: -12 },
+  { id: '4', label: 'Quiet walk', type: 'travel', cost: -6 },
+  { id: '5', label: 'Decompression break', type: 'rest', cost: 18 },
+];
 
-  return {
+function createInitialState(): AppState {
+  const defaults: AppState = {
     isRecoveryMode: false,
     dailyEnergyBudget: 100,
     currentEnergy: 72,
@@ -181,6 +190,7 @@ function createInitialState(): AppState {
         note: 'More people than expected',
       },
     ],
+    energyPresets: defaultEnergyPresets,
     tasks: [],
     activeTaskId: null,
     sensoryLogs: [
@@ -245,6 +255,28 @@ function createInitialState(): AppState {
     today: new Date().toDateString(),
     user: null,
   };
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      // Ensure all arrays exist even in older saved states
+      return {
+        ...defaults,
+        ...parsed,
+        energyEntries: parsed.energyEntries || defaults.energyEntries,
+        energyPresets: parsed.energyPresets || defaults.energyPresets,
+        tasks: parsed.tasks || defaults.tasks,
+        sensoryLogs: parsed.sensoryLogs || defaults.sensoryLogs,
+        customRecoveryPlans: parsed.customRecoveryPlans || defaults.customRecoveryPlans,
+        calendarEvents: parsed.calendarEvents || defaults.calendarEvents,
+      };
+    } catch (e) {
+      console.error('Failed to parse saved state', e);
+    }
+  }
+
+  return defaults;
 }
 
 export function createAppStore(): AppStore {
@@ -290,6 +322,7 @@ export function createAppStore(): AppStore {
           state: {
             currentEnergy: syncableState.currentEnergy,
             energyEntries: syncableState.energyEntries,
+            energyPresets: syncableState.energyPresets,
             tasks: syncableState.tasks,
             activeTaskId: syncableState.activeTaskId,
             sensoryLogs: syncableState.sensoryLogs,
@@ -326,6 +359,16 @@ export function createAppStore(): AppStore {
       setState({
         energyEntries: [...state.energyEntries, { ...entry, id: Date.now().toString() }],
         currentEnergy: Math.max(0, Math.min(100, state.currentEnergy + entry.cost)),
+      });
+    },
+    addEnergyPreset: (preset: Omit<EnergyPreset, 'id'>) => {
+      setState({
+        energyPresets: [...state.energyPresets, { ...preset, id: Date.now().toString() }],
+      });
+    },
+    removeEnergyPreset: (id: string) => {
+      setState({
+        energyPresets: state.energyPresets.filter(p => p.id !== id),
       });
     },
     addTask: (task: Omit<Task, 'id' | 'createdAt' | 'currentStepIndex'>) => {
@@ -426,6 +469,7 @@ export function createAppStore(): AppStore {
             setState({
               currentEnergy: data.state.currentEnergy,
               energyEntries: data.state.energyEntries,
+              energyPresets: data.state.energyPresets || defaultEnergyPresets,
               tasks: data.state.tasks,
               activeTaskId: data.state.activeTaskId,
               sensoryLogs: data.state.sensoryLogs,

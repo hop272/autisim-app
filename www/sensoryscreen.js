@@ -17,11 +17,12 @@ function analyzePatterns(logs) {
 }
 export function renderSensoryScreen(navigate) {
     const state = store.getState();
-    const patterns = analyzePatterns(state.sensoryLogs);
+    const patterns = analyzePatterns(state.sensoryLogs || []);
     const container = document.createElement('div');
     container.className = 'screen-card';
     container.appendChild(createSectionHeader('Sensory check-in', 'Use a few taps to log noise, light, crowding, and mood.'));
     const formCard = createCard();
+    // ... (unchanged part)
     formCard.innerHTML = '<h3>How are things right now?</h3>';
     const values = {
         noise: 5,
@@ -94,14 +95,14 @@ export function renderSensoryScreen(navigate) {
     const historyCard = createCard();
     const historyHeader = createSectionHeader('Recent history');
     historyCard.appendChild(historyHeader);
-    if (state.sensoryLogs.length > 0) {
+    if ((state.sensoryLogs || []).length > 0) {
         historyHeader.appendChild(createButton('Clear history', () => {
             if (confirm('Clear all sensory logs?')) {
                 store.clearSensoryHistory();
             }
         }, 'secondary'));
     }
-    state.sensoryLogs.slice(0, 4).forEach(log => {
+    (state.sensoryLogs || []).slice(0, 4).forEach(log => {
         const entry = document.createElement('div');
         entry.className = 'history-entry';
         entry.innerHTML = `

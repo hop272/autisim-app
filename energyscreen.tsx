@@ -1,14 +1,5 @@
 import { store } from './index2.js';
 import { createButton, createCard, createSectionHeader } from './ui.js';
-import { syncMorningEnergy } from './healthService.js';
-
-const presets = [
-  { label: 'Good sleep', type: 'rest' as const, cost: 35 },
-  { label: 'Crowded social event', type: 'social' as const, cost: -24 },
-  { label: 'Focused work block', type: 'work' as const, cost: -12 },
-  { label: 'Quiet walk', type: 'travel' as const, cost: -6 },
-  { label: 'Decompression break', type: 'rest' as const, cost: 18 },
-];
 
 function timeAgo(timestamp: number): string {
   const diff = Date.now() - timestamp;
@@ -20,63 +11,14 @@ function timeAgo(timestamp: number): string {
 
 export function renderEnergyScreen(navigate: (screen: string) => void) {
   const state = store.getState();
-  const todayEntries = state.energyEntries.filter(entry => new Date(entry.timestamp).toDateString() === new Date().toDateString());
+  const todayEntries = (state.energyEntries || []).filter(entry => new Date(entry.timestamp).toDateString() === new Date().toDateString());
 
   const container = document.createElement('div');
   container.className = 'screen-card';
   container.appendChild(createSectionHeader('Energy budgeting', 'Track activities as energy costs and keep the day sustainable.'));
 
-  // Health integration UI removed for now - kept in framework for future use
-  /*
-  if (!state.hasSeenHealthOnboarding) {
-    const onboarding = createCard();
-    onboarding.style.backgroundColor = '#f0f7ff';
-    onboarding.style.borderColor = '#007aff';
-    onboarding.innerHTML = `
-      <div class="stack">
-        <h3>✨ Smart Energy Tracking</h3>
-        <p>Would you like to automatically estimate your morning energy using sleep and step data from Samsung Health / Google Fit?</p>
-        <div class="row" id="onboarding-actions" style="gap: 10px; margin-top: 10px;"></div>
-      </div>
-    `;
-    const actions = onboarding.querySelector('#onboarding-actions');
-    if (actions) {
-      actions.appendChild(createButton('Enable Health Sync', () => {
-        store.setHealthSyncEnabled(true);
-        store.setHasSeenHealthOnboarding(true);
-        syncMorningEnergy();
-      }));
-      actions.appendChild(createButton('Maybe Later', () => {
-        store.setHasSeenHealthOnboarding(true);
-      }, 'secondary'));
-    }
-    container.appendChild(onboarding);
-  } else if (state.healthSyncEnabled) {
-    const syncCard = createCard();
-    syncCard.innerHTML = `
-      <div class="row-between">
-        <div class="stack">
-          <h3>Health Connect</h3>
-          <p class="muted">Connected to Samsung Health</p>
-        </div>
-        <div id="sync-action"></div>
-      </div>
-    `;
-    syncCard.querySelector('#sync-action')?.appendChild(createButton('Sync Now', () => syncMorningEnergy(), 'secondary'));
-    container.appendChild(syncCard);
-  } else {
-    const banner = createCard();
-    banner.innerHTML = `
-      <div class="stack">
-        <h3>Manual Tracking</h3>
-        <p class="muted">Health sync is disabled. You can enable it in Settings.</p>
-      </div>
-    `;
-    container.appendChild(banner);
-  }
-  */
-
   const main = createCard();
+  // ... (unchanged part)
   main.innerHTML = `
     <div class="stack">
       <div class="row-between">
@@ -102,15 +44,74 @@ export function renderEnergyScreen(navigate: (screen: string) => void) {
   presetsCard.appendChild(createSectionHeader('Quick presets'));
   const presetList = document.createElement('div');
   presetList.className = 'stack compact';
-  presets.forEach(preset => {
-    const row = document.createElement('button');
-    row.className = 'preset-row';
-    row.textContent = `${preset.label} ${preset.cost > 0 ? `+${preset.cost}` : preset.cost}`;
-    row.addEventListener('click', () => store.addEnergyEntry({ timestamp: Date.now(), activity: preset.label, activityType: preset.type, cost: preset.cost }));
+  (state.energyPresets || []).forEach(preset => {
+    const row = document.createElement('div');
+    row.className = 'preset-row-container';
+
+    const useBtn = document.createElement('button');
+    useBtn.className = 'preset-row';
+    useBtn.style.flex = '1';
+    useBtn.textContent = `${preset.label} ${preset.cost > 0 ? `+${preset.cost}` : preset.cost}`;
+    useBtn.addEventListener('click', () => store.addEnergyEntry({ timestamp: Date.now(), activity: preset.label, activityType: preset.type, cost: preset.cost }));
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'preset-delete';
+    delBtn.innerHTML = '×';
+    delBtn.title = 'Remove preset';
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      store.removeEnergyPreset(preset.id);
+    });
+
+    row.appendChild(useBtn);
+    row.appendChild(delBtn);
     presetList.appendChild(row);
   });
   presetsCard.appendChild(presetList);
   container.appendChild(presetsCard);
+
+  const addPresetCard = createCard();
+  addPresetCard.appendChild(createSectionHeader('Create custom preset', 'Add your own activities with unique energy costs.'));
+  const addPresetForm = document.createElement('div');
+  addPresetForm.className = 'stack compact';
+  addPresetForm.innerHTML = `
+    <input type="text" id="preset-label" placeholder="Activity name" class="field">
+    <div class="row-between">
+      <div style="flex: 1">
+        <label class="muted" style="font-size: 0.8rem; display: block; margin-bottom: 4px;">Energy change</label>
+        <input type="number" id="preset-cost" placeholder="-15" class="field" style="width: 100%">
+      </div>
+      <div style="flex: 1">
+        <label class="muted" style="font-size: 0.8rem; display: block; margin-bottom: 4px;">Category</label>
+        <select id="preset-type" class="field" style="width: 100%">
+          <option value="rest">Rest</option>
+          <option value="work">Work</option>
+          <option value="social">Social</option>
+          <option value="travel">Travel</option>
+          <option value="personal">Personal</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+  `;
+  const addButton = createButton('Add Preset', () => {
+    const labelInput = addPresetForm.querySelector('#preset-label') as HTMLInputElement;
+    const costInput = addPresetForm.querySelector('#preset-cost') as HTMLInputElement;
+    const typeSelect = addPresetForm.querySelector('#preset-type') as HTMLSelectElement;
+
+    const label = labelInput.value.trim();
+    const cost = parseInt(costInput.value);
+    const type = typeSelect.value as any;
+
+    if (label && !isNaN(cost)) {
+      store.addEnergyPreset({ label, cost, type });
+      labelInput.value = '';
+      costInput.value = '';
+    }
+  }, 'secondary');
+  addPresetForm.appendChild(addButton);
+  addPresetCard.appendChild(addPresetForm);
+  container.appendChild(addPresetCard);
 
   const entriesCard = createCard();
   entriesCard.appendChild(createSectionHeader('Today’s entries'));

@@ -75,10 +75,10 @@ export function renderTaskScreen(navigate: (screen: string) => void) {
   formCard.appendChild(button);
   container.appendChild(formCard);
 
-  if (state.tasks.length > 0) {
+  if ((state.tasks || []).length > 0) {
     const listCard = createCard();
     listCard.appendChild(createSectionHeader('Your tasks'));
-    state.tasks.forEach(task => {
+    (state.tasks || []).forEach(task => {
       const item = document.createElement('div');
       item.className = 'task-item';
       const done = task.steps.filter(step => step.done).length;
@@ -96,14 +96,18 @@ export function renderTaskScreen(navigate: (screen: string) => void) {
       `;
       const actionRow = document.createElement('div');
       actionRow.className = 'row-between';
-      const nextButton = createButton(nextStep ? 'Mark next step done' : 'Completed', () => {
-        if (!nextStep) {
-          return;
-        }
-        const stepIndex = task.steps.findIndex(step => step.id === nextStep.id);
-        store.completeStep(task.id, stepIndex);
-      });
-      actionRow.appendChild(nextButton);
+      if (nextStep) {
+        const nextButton = createButton('Mark next step done', () => {
+          const stepIndex = task.steps.findIndex(step => step.id === nextStep.id);
+          store.completeStep(task.id, stepIndex);
+        });
+        actionRow.appendChild(nextButton);
+      } else {
+        const clearButton = createButton('Clear finished task', () => {
+          store.clearTask(task.id);
+        }, 'secondary');
+        actionRow.appendChild(clearButton);
+      }
       item.appendChild(actionRow);
       listCard.appendChild(item);
     });

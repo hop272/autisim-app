@@ -134,15 +134,6 @@ function renderShell() {
             }));
             break;
     }
-    const summaryCard = createCard();
-    const summary = document.createElement('div');
-    summary.className = 'summary-strip';
-    summary.innerHTML = `
-    <div><strong>Energy</strong><span>${Math.round(state.currentEnergy)}%</span></div>
-    <div><strong>Recovery</strong><span>${state.isRecoveryMode ? 'On' : 'Ready'}</span></div>
-    <div><strong>Tasks</strong><span>${state.tasks.length}</span></div>
-  `;
-    summaryCard.appendChild(summary);
     app.appendChild(header);
     if (state.currentEnergy <= 0 && !state.isRecoveryMode) {
         const warning = createCard();
@@ -159,7 +150,6 @@ function renderShell() {
     if (!state.isRecoveryMode) {
         app.appendChild(nav);
     }
-    app.appendChild(summaryCard);
     app.appendChild(content);
     root.appendChild(app);
 }

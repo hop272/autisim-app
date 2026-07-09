@@ -18,8 +18,8 @@ function energyLabel(value: number): string {
 
 export function renderDashboardScreen(navigate: (screen: string) => void) {
   const state = store.getState();
-  const latestSensory = state.sensoryLogs[0];
-  const activeTask = state.tasks.find(task => task.id === state.activeTaskId);
+  const latestSensory = (state.sensoryLogs || [])[0];
+  const activeTask = (state.tasks || []).find(task => task.id === state.activeTaskId);
 
   const container = document.createElement('div');
   container.className = 'screen-card';
@@ -45,16 +45,26 @@ export function renderDashboardScreen(navigate: (screen: string) => void) {
 
   const taskCard = createCard();
   if (activeTask) {
+    const isDone = activeTask.steps.every(s => s.done);
     taskCard.innerHTML = `
       <div class="stack">
         <div class="row-between">
           <h3>Current task</h3>
-          ${createBadge('In progress', 'success').outerHTML}
+          ${createBadge(isDone ? 'Done' : 'In progress', isDone ? 'success' : 'default').outerHTML}
         </div>
         <p><strong>${activeTask.goal}</strong></p>
-        <p>${activeTask.steps[activeTask.currentStepIndex]?.text ?? 'You are all caught up.'}</p>
+        <p>${!isDone ? activeTask.steps[activeTask.currentStepIndex]?.text : 'You have completed all steps.'}</p>
+        <div id="task-dashboard-actions"></div>
       </div>
     `;
+    const dashboardTaskActions = taskCard.querySelector('#task-dashboard-actions');
+    if (dashboardTaskActions) {
+      if (isDone) {
+        dashboardTaskActions.appendChild(createButton('Clear finished task', () => store.clearTask(activeTask.id), 'secondary'));
+      } else {
+        dashboardTaskActions.appendChild(createButton('Open task details', () => navigate('tasks'), 'secondary'));
+      }
+    }
   } else {
     taskCard.innerHTML = `
       <div class="stack">
@@ -78,7 +88,7 @@ export function renderDashboardScreen(navigate: (screen: string) => void) {
   `;
   container.appendChild(sensoryCard);
 
-  const nextEvent = state.calendarEvents
+  const nextEvent = (state.calendarEvents || [])
     .filter(e => e.startTime > Date.now())
     .sort((a, b) => a.startTime - b.startTime)[0];
 

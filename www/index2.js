@@ -14,17 +14,15 @@ const defaultCrisisPlan = {
     safePlace: 'Bedroom with blackout curtains',
     lastUpdated: Date.now(),
 };
+const defaultEnergyPresets = [
+    { id: '1', label: 'Good sleep', type: 'rest', cost: 35 },
+    { id: '2', label: 'Crowded social event', type: 'social', cost: -24 },
+    { id: '3', label: 'Focused work block', type: 'work', cost: -12 },
+    { id: '4', label: 'Quiet walk', type: 'travel', cost: -6 },
+    { id: '5', label: 'Decompression break', type: 'rest', cost: 18 },
+];
 function createInitialState() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-        try {
-            return JSON.parse(saved);
-        }
-        catch (e) {
-            console.error('Failed to parse saved state', e);
-        }
-    }
-    return {
+    const defaults = {
         isRecoveryMode: false,
         dailyEnergyBudget: 100,
         currentEnergy: 72,
@@ -46,6 +44,7 @@ function createInitialState() {
                 note: 'More people than expected',
             },
         ],
+        energyPresets: defaultEnergyPresets,
         tasks: [],
         activeTaskId: null,
         sensoryLogs: [
@@ -110,6 +109,27 @@ function createInitialState() {
         today: new Date().toDateString(),
         user: null,
     };
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            // Ensure all arrays exist even in older saved states
+            return {
+                ...defaults,
+                ...parsed,
+                energyEntries: parsed.energyEntries || defaults.energyEntries,
+                energyPresets: parsed.energyPresets || defaults.energyPresets,
+                tasks: parsed.tasks || defaults.tasks,
+                sensoryLogs: parsed.sensoryLogs || defaults.sensoryLogs,
+                customRecoveryPlans: parsed.customRecoveryPlans || defaults.customRecoveryPlans,
+                calendarEvents: parsed.calendarEvents || defaults.calendarEvents,
+            };
+        }
+        catch (e) {
+            console.error('Failed to parse saved state', e);
+        }
+    }
+    return defaults;
 }
 export function createAppStore() {
     let state = createInitialState();
@@ -150,6 +170,7 @@ export function createAppStore() {
                 state: {
                     currentEnergy: syncableState.currentEnergy,
                     energyEntries: syncableState.energyEntries,
+                    energyPresets: syncableState.energyPresets,
                     tasks: syncableState.tasks,
                     activeTaskId: syncableState.activeTaskId,
                     sensoryLogs: syncableState.sensoryLogs,
@@ -186,6 +207,16 @@ export function createAppStore() {
             setState({
                 energyEntries: [...state.energyEntries, { ...entry, id: Date.now().toString() }],
                 currentEnergy: Math.max(0, Math.min(100, state.currentEnergy + entry.cost)),
+            });
+        },
+        addEnergyPreset: (preset) => {
+            setState({
+                energyPresets: [...state.energyPresets, { ...preset, id: Date.now().toString() }],
+            });
+        },
+        removeEnergyPreset: (id) => {
+            setState({
+                energyPresets: state.energyPresets.filter(p => p.id !== id),
             });
         },
         addTask: (task) => {
@@ -284,6 +315,7 @@ export function createAppStore() {
                         setState({
                             currentEnergy: data.state.currentEnergy,
                             energyEntries: data.state.energyEntries,
+                            energyPresets: data.state.energyPresets || defaultEnergyPresets,
                             tasks: data.state.tasks,
                             activeTaskId: data.state.activeTaskId,
                             sensoryLogs: data.state.sensoryLogs,
