@@ -77,6 +77,8 @@ export interface AppState {
   crisisPlan: CrisisPlan;
   customRecoveryPlans: RecoveryPlan[];
   activeRecoveryPlanId: string | null;
+  healthSyncEnabled: boolean;
+  hasSeenHealthOnboarding: boolean;
   today: string;
   user: User | null;
 }
@@ -99,6 +101,8 @@ export interface AppStore {
   addRecoveryPlan: (plan: Omit<RecoveryPlan, 'id'>) => void;
   removeRecoveryPlan: (id: string) => void;
   setActiveRecoveryPlan: (id: string | null) => void;
+  setHealthSyncEnabled: (enabled: boolean) => void;
+  setHasSeenHealthOnboarding: (seen: boolean) => void;
   clearSensoryHistory: () => void;
   setUser: (user: User | null) => Promise<void>;
   syncToCloud: () => Promise<void>;
@@ -189,6 +193,8 @@ function createInitialState(): AppState {
     crisisPlan: defaultCrisisPlan,
     customRecoveryPlans: [],
     activeRecoveryPlanId: null,
+    healthSyncEnabled: false,
+    hasSeenHealthOnboarding: false,
     today: new Date().toDateString(),
     user: null,
   };
@@ -243,6 +249,8 @@ export function createAppStore(): AppStore {
             crisisPlan: syncableState.crisisPlan,
             customRecoveryPlans: syncableState.customRecoveryPlans,
             activeRecoveryPlanId: syncableState.activeRecoveryPlanId,
+            healthSyncEnabled: syncableState.healthSyncEnabled,
+            hasSeenHealthOnboarding: syncableState.hasSeenHealthOnboarding,
           },
           updated_at: new Date().toISOString()
         });
@@ -331,6 +339,12 @@ export function createAppStore(): AppStore {
     setActiveRecoveryPlan: (id: string | null) => {
       setState({ activeRecoveryPlanId: id });
     },
+    setHealthSyncEnabled: (enabled: boolean) => {
+      setState({ healthSyncEnabled: enabled });
+    },
+    setHasSeenHealthOnboarding: (seen: boolean) => {
+      setState({ hasSeenHealthOnboarding: seen });
+    },
     clearSensoryHistory: () => {
       setState({ sensoryLogs: [] });
     },
@@ -357,6 +371,8 @@ export function createAppStore(): AppStore {
               crisisPlan: data.state.crisisPlan,
               customRecoveryPlans: data.state.customRecoveryPlans || [],
               activeRecoveryPlanId: data.state.activeRecoveryPlanId || null,
+              healthSyncEnabled: data.state.healthSyncEnabled || false,
+              hasSeenHealthOnboarding: data.state.hasSeenHealthOnboarding || false,
             });
           }
         } catch (e) {

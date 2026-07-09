@@ -90,26 +90,75 @@ export function renderAccountScreen(navigate: (screen: string) => void) {
   }
   container.appendChild(authCard);
 
-  // 2. Settings Placeholders
+  // 2. Settings Section
   const settingsCard = createCard();
-  settingsCard.appendChild(createSectionHeader('App Settings', 'Customise your experience (Coming Soon)'));
-  settingsCard.innerHTML += `
-    <div class="stack compact">
-      <div class="row-between" style="opacity: 0.6;">
-        <span>Dark Mode</span>
-        <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
-      </div>
-      <div class="row-between" style="opacity: 0.6;">
-        <span>Notification Reminders</span>
-        <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
-      </div>
-      <div class="row-between" style="opacity: 0.6;">
-        <span>High Contrast Mode</span>
-        <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
-      </div>
+  settingsCard.appendChild(createSectionHeader('App Settings', 'Customise your experience.'));
+
+  const settingsList = document.createElement('div');
+  settingsList.className = 'stack compact';
+
+  // Health Sync Toggle removed from active settings
+  /*
+  const healthRow = document.createElement('div');
+  healthRow.className = 'row-between';
+  healthRow.style.padding = '8px 0';
+  healthRow.innerHTML = `
+    <span>Health Sync (Samsung Health)</span>
+    <div id="health-toggle-container"></div>
+  `;
+
+  const toggleBtn = createButton(state.healthSyncEnabled ? 'Enabled' : 'Disabled', () => {
+    store.setHealthSyncEnabled(!state.healthSyncEnabled);
+    if (!state.healthSyncEnabled) {
+      // If we are turning it on for the first time or from settings
+      store.setHasSeenHealthOnboarding(true);
+    }
+    navigate('account'); // Re-render this screen
+  }, state.healthSyncEnabled ? 'primary' : 'secondary');
+  toggleBtn.style.padding = '4px 12px';
+  toggleBtn.style.fontSize = '0.8rem';
+  healthRow.querySelector('#health-toggle-container')?.appendChild(toggleBtn);
+
+  settingsList.appendChild(healthRow);
+  */
+
+  // Other Placeholders
+  settingsList.innerHTML += `
+    <div class="row-between" style="opacity: 0.6; padding: 8px 0;">
+      <span>Dark Mode</span>
+      <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
+    </div>
+    <div class="row-between" style="opacity: 0.6; padding: 8px 0;">
+      <span>Notification Reminders</span>
+      <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
     </div>
   `;
+
+  settingsCard.appendChild(settingsList);
   container.appendChild(settingsCard);
+
+  // 2.5 Coming Soon Section
+  const comingSoonCard = createCard();
+  comingSoonCard.style.opacity = '0.8';
+  comingSoonCard.appendChild(createSectionHeader('Coming Soon', 'Features currently in development.'));
+  const comingSoonList = document.createElement('div');
+  comingSoonList.className = 'stack compact';
+  comingSoonList.innerHTML = `
+    <div class="row-between" style="padding: 8px 0;">
+      <span>Samsung Health Sync</span>
+      <span class="badge badge-default" style="font-size: 0.7rem;">Planned</span>
+    </div>
+    <div class="row-between" style="padding: 8px 0;">
+      <span>Smart Watch Integration</span>
+      <span class="badge badge-default" style="font-size: 0.7rem;">Planned</span>
+    </div>
+    <div class="row-between" style="padding: 8px 0;">
+      <span>Custom Themes</span>
+      <span class="badge badge-default" style="font-size: 0.7rem;">Planned</span>
+    </div>
+  `;
+  comingSoonCard.appendChild(comingSoonList);
+  container.appendChild(comingSoonCard);
 
   // 3. Preferences Section
   const preferenceCard = createCard();

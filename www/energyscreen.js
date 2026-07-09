@@ -22,14 +22,55 @@ export function renderEnergyScreen(navigate) {
     const container = document.createElement('div');
     container.className = 'screen-card';
     container.appendChild(createSectionHeader('Energy budgeting', 'Track activities as energy costs and keep the day sustainable.'));
-    const banner = createCard();
-    banner.innerHTML = `
-    <div class="stack">
-      <h3>Connect health data</h3>
-      <p class="muted">Sleep, resting heart rate, and steps from Apple Health, Google Fit, Garmin, or Oura can feed this view later.</p>
-    </div>
-  `;
-    container.appendChild(banner);
+    // Health integration UI removed for now - kept in framework for future use
+    /*
+    if (!state.hasSeenHealthOnboarding) {
+      const onboarding = createCard();
+      onboarding.style.backgroundColor = '#f0f7ff';
+      onboarding.style.borderColor = '#007aff';
+      onboarding.innerHTML = `
+        <div class="stack">
+          <h3>✨ Smart Energy Tracking</h3>
+          <p>Would you like to automatically estimate your morning energy using sleep and step data from Samsung Health / Google Fit?</p>
+          <div class="row" id="onboarding-actions" style="gap: 10px; margin-top: 10px;"></div>
+        </div>
+      `;
+      const actions = onboarding.querySelector('#onboarding-actions');
+      if (actions) {
+        actions.appendChild(createButton('Enable Health Sync', () => {
+          store.setHealthSyncEnabled(true);
+          store.setHasSeenHealthOnboarding(true);
+          syncMorningEnergy();
+        }));
+        actions.appendChild(createButton('Maybe Later', () => {
+          store.setHasSeenHealthOnboarding(true);
+        }, 'secondary'));
+      }
+      container.appendChild(onboarding);
+    } else if (state.healthSyncEnabled) {
+      const syncCard = createCard();
+      syncCard.innerHTML = `
+        <div class="row-between">
+          <div class="stack">
+            <h3>Health Connect</h3>
+            <p class="muted">Connected to Samsung Health</p>
+          </div>
+          <div id="sync-action"></div>
+        </div>
+      `;
+      syncCard.querySelector('#sync-action')?.appendChild(createButton('Sync Now', () => syncMorningEnergy(), 'secondary'));
+      container.appendChild(syncCard);
+    } else {
+      const banner = createCard();
+      banner.innerHTML = `
+        <div class="stack">
+          <h3>Manual Tracking</h3>
+          <p class="muted">Health sync is disabled. You can enable it in Settings.</p>
+        </div>
+      `;
+      container.appendChild(banner);
+    }
+    */
     const main = createCard();
     main.innerHTML = `
     <div class="stack">

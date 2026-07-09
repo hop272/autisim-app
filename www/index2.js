@@ -82,6 +82,8 @@ function createInitialState() {
         crisisPlan: defaultCrisisPlan,
         customRecoveryPlans: [],
         activeRecoveryPlanId: null,
+        healthSyncEnabled: false,
+        hasSeenHealthOnboarding: false,
         today: new Date().toDateString(),
         user: null,
     };
@@ -131,6 +133,8 @@ export function createAppStore() {
                     crisisPlan: syncableState.crisisPlan,
                     customRecoveryPlans: syncableState.customRecoveryPlans,
                     activeRecoveryPlanId: syncableState.activeRecoveryPlanId,
+                    healthSyncEnabled: syncableState.healthSyncEnabled,
+                    hasSeenHealthOnboarding: syncableState.hasSeenHealthOnboarding,
                 },
                 updated_at: new Date().toISOString()
             });
@@ -219,6 +223,12 @@ export function createAppStore() {
         setActiveRecoveryPlan: (id) => {
             setState({ activeRecoveryPlanId: id });
         },
+        setHealthSyncEnabled: (enabled) => {
+            setState({ healthSyncEnabled: enabled });
+        },
+        setHasSeenHealthOnboarding: (seen) => {
+            setState({ hasSeenHealthOnboarding: seen });
+        },
         clearSensoryHistory: () => {
             setState({ sensoryLogs: [] });
         },
@@ -243,6 +253,8 @@ export function createAppStore() {
                             crisisPlan: data.state.crisisPlan,
                             customRecoveryPlans: data.state.customRecoveryPlans || [],
                             activeRecoveryPlanId: data.state.activeRecoveryPlanId || null,
+                            healthSyncEnabled: data.state.healthSyncEnabled || false,
+                            hasSeenHealthOnboarding: data.state.hasSeenHealthOnboarding || false,
                         });
                     }
                 }
