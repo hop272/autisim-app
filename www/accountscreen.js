@@ -1,0 +1,125 @@
+import { store } from './index2.js';
+import { createButton, createCard, createSectionHeader } from './ui.js';
+import { supabase } from './supabase.js';
+export function renderAccountScreen(navigate) {
+    const state = store.getState();
+    const container = document.createElement('div');
+    container.className = 'stack';
+    // 1. Profile Section
+    const authCard = createCard();
+    if (state.user && state.user.id !== 'local-user') {
+        authCard.innerHTML = `
+      <div class="stack" style="align-items: center; text-align: center;">
+        <div style="font-size: 3rem; margin-bottom: 10px;">${state.user.imageUrl || '👤'}</div>
+        <h3>${state.user.name || 'User'}</h3>
+        <p class="muted">${state.user.email}</p>
+      </div>
+    `;
+        const logoutBtn = createButton('Sign Out', async () => {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error)
+                    throw error;
+                store.setUser(null);
+            }
+            catch (e) {
+                console.error('Logout failed', e);
+                alert('Logout failed: ' + e.message);
+            }
+        }, 'secondary');
+        authCard.querySelector('.stack')?.appendChild(logoutBtn);
+    }
+    else {
+        authCard.innerHTML = `
+      <div class="stack">
+        <h3>Sign In / Create Account</h3>
+        <p class="muted">Sync your progress and routines across devices.</p>
+
+        <div class="field-group">
+          <label style="font-size: 0.85rem; color: var(--text-secondary);">Email</label>
+          <input type="email" id="auth-email" class="field" placeholder="email@example.com" />
+        </div>
+
+        <div class="field-group">
+          <label style="font-size: 0.85rem; color: var(--text-secondary);">Password</label>
+          <input type="password" id="auth-password" class="field" placeholder="••••••••" />
+        </div>
+
+        <div class="row-between" style="gap: 10px; margin-top: 10px;">
+          <div id="signin-container" style="flex: 1"></div>
+          <div id="signup-container" style="flex: 1"></div>
+        </div>
+      </div>
+    `;
+        const signInBtn = createButton('Sign In', async () => {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error)
+                    throw error;
+                if (data.user) {
+                    store.setUser({
+                        id: data.user.id,
+                        email: data.user.email || '',
+                        name: data.user.user_metadata?.full_name || email.split('@')[0],
+                        imageUrl: '👤'
+                    });
+                    alert('Signed in successfully!');
+                }
+            }
+            catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }, 'primary');
+        const signUpBtn = createButton('Create Account', async () => {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            try {
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error)
+                    throw error;
+                alert('Check your email for the confirmation link!');
+            }
+            catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }, 'secondary');
+        authCard.querySelector('#signin-container')?.appendChild(signInBtn);
+        authCard.querySelector('#signup-container')?.appendChild(signUpBtn);
+    }
+    container.appendChild(authCard);
+    // 2. Settings Placeholders
+    const settingsCard = createCard();
+    settingsCard.appendChild(createSectionHeader('App Settings', 'Customise your experience (Coming Soon)'));
+    settingsCard.innerHTML += `
+    <div class="stack compact">
+      <div class="row-between" style="opacity: 0.6;">
+        <span>Dark Mode</span>
+        <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
+      </div>
+      <div class="row-between" style="opacity: 0.6;">
+        <span>Notification Reminders</span>
+        <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
+      </div>
+      <div class="row-between" style="opacity: 0.6;">
+        <span>High Contrast Mode</span>
+        <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
+      </div>
+    </div>
+  `;
+    container.appendChild(settingsCard);
+    // 3. Preferences Section
+    const preferenceCard = createCard();
+    preferenceCard.appendChild(createSectionHeader('Preferences', 'Manage your daily targets.'));
+    preferenceCard.innerHTML += `
+    <div class="stack compact">
+      <div class="field-group">
+        <label style="font-size: 0.85rem; color: var(--text-secondary);">Daily Energy Goal (%)</label>
+        <input type="number" class="field" value="${state.dailyEnergyBudget}" disabled style="background: #fbfcfe;" />
+      </div>
+    </div>
+  `;
+    container.appendChild(preferenceCard);
+    return container;
+}

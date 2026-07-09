@@ -1,0 +1,15 @@
+const config = {
+    appId: 'com.example.app',
+    appName: 'autisim-app',
+    webDir: 'www',
+    plugins: {
+        SplashScreen: {
+            launchShowDuration: 0,
+            launchAutoHide: true,
+            backgroundColor: "#F7F8FA",
+            androidScaleType: "CENTER_CROP",
+            showSpinner: false
+        }
+    }
+};
+export default config;
