@@ -82,6 +82,29 @@ function createInitialState() {
         crisisPlan: defaultCrisisPlan,
         customRecoveryPlans: [],
         activeRecoveryPlanId: null,
+        calendarEvents: [
+            {
+                id: '1',
+                title: 'Supermarket Trip',
+                startTime: Date.now() + 3600000,
+                endTime: Date.now() + 7200000,
+                location: 'Tesco',
+                isSynced: false,
+                icon: '🛒',
+                sensoryProfile: { noise: 8, light: 7, crowding: 9 },
+                energyCost: -20
+            },
+            {
+                id: '2',
+                title: 'Therapy Session',
+                startTime: Date.now() + 86400000,
+                endTime: Date.now() + 86400000 + 3600000,
+                isSynced: false,
+                icon: '🧘',
+                sensoryProfile: { noise: 2, light: 3, crowding: 1 },
+                energyCost: -10
+            }
+        ],
         healthSyncEnabled: false,
         hasSeenHealthOnboarding: false,
         today: new Date().toDateString(),
@@ -133,6 +156,7 @@ export function createAppStore() {
                     crisisPlan: syncableState.crisisPlan,
                     customRecoveryPlans: syncableState.customRecoveryPlans,
                     activeRecoveryPlanId: syncableState.activeRecoveryPlanId,
+                    calendarEvents: syncableState.calendarEvents,
                     healthSyncEnabled: syncableState.healthSyncEnabled,
                     hasSeenHealthOnboarding: syncableState.hasSeenHealthOnboarding,
                 },
@@ -223,6 +247,19 @@ export function createAppStore() {
         setActiveRecoveryPlan: (id) => {
             setState({ activeRecoveryPlanId: id });
         },
+        addCalendarEvent: (event) => {
+            setState({
+                calendarEvents: [...state.calendarEvents, { ...event, id: Date.now().toString() }]
+            });
+        },
+        setCalendarEvents: (events) => {
+            setState({ calendarEvents: events });
+        },
+        updateCalendarEvent: (id, update) => {
+            setState({
+                calendarEvents: state.calendarEvents.map(ev => ev.id === id ? { ...ev, ...update } : ev)
+            });
+        },
         setHealthSyncEnabled: (enabled) => {
             setState({ healthSyncEnabled: enabled });
         },
@@ -253,6 +290,7 @@ export function createAppStore() {
                             crisisPlan: data.state.crisisPlan,
                             customRecoveryPlans: data.state.customRecoveryPlans || [],
                             activeRecoveryPlanId: data.state.activeRecoveryPlanId || null,
+                            calendarEvents: data.state.calendarEvents || [],
                             healthSyncEnabled: data.state.healthSyncEnabled || false,
                             hasSeenHealthOnboarding: data.state.hasSeenHealthOnboarding || false,
                         });

@@ -4,6 +4,7 @@ import { renderRecoveryScreen } from './recoveryscreen.js';
 import { renderSensoryScreen } from './sensoryscreen.js';
 import { renderTaskScreen } from './taskscreen.js';
 import { renderAccountScreen } from './accountscreen.js';
+import { renderCalendarScreen } from './calendarscreen.js';
 import { createButton, createCard } from './ui.js';
 import { store } from './index2.js';
 import { supabase } from './supabase.js';
@@ -79,6 +80,7 @@ function renderShell() {
     nav.className = 'nav-list';
     const screens = [
         { id: 'dashboard', label: 'Home' },
+        { id: 'calendar', label: 'Planner' },
         { id: 'tasks', label: 'Tasks' },
         { id: 'sensory', label: 'Sensory' },
         { id: 'energy', label: 'Energy' },
@@ -121,6 +123,12 @@ function renderShell() {
             break;
         case 'recovery':
             content.appendChild(renderRecoveryScreen((screen) => {
+                currentScreen = screen;
+                renderShell();
+            }));
+            break;
+        case 'calendar':
+            content.appendChild(renderCalendarScreen((screen) => {
                 currentScreen = screen;
                 renderShell();
             }));

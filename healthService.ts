@@ -1,18 +1,16 @@
 import { store } from './index2.js';
 
-// We dynamic import to avoid crashes if not on Android/plugin not ready
-async function getHealthConnect() {
-  try {
-    const { HealthConnect } = await import('capacitor-health-connect');
-    return HealthConnect;
-  } catch (e) {
-    console.warn('Health Connect plugin not found');
-    return null;
+// Accessing via global Capacitor since we don't have a web bundler to resolve imports at runtime
+function getHealthConnect() {
+  const win = window as any;
+  if (win.Capacitor && win.Capacitor.Plugins && win.Capacitor.Plugins.HealthConnect) {
+    return win.Capacitor.Plugins.HealthConnect;
   }
+  return null;
 }
 
 export async function syncMorningEnergy() {
-  const HealthConnect = await getHealthConnect();
+  const HealthConnect = getHealthConnect();
   if (!HealthConnect) return;
 
   try {
@@ -22,13 +20,12 @@ export async function syncMorningEnergy() {
       return;
     }
 
-    // Request permissions for steps and sleep (sleep might need casting if not in type def)
+    // Request permissions for steps and sleep
     await HealthConnect.requestHealthPermissions({
-      read: ['Steps', 'RestingHeartRate'] as any, // Trying to get what we can
+      read: ['Steps', 'RestingHeartRate'] as any,
       write: [],
     });
 
-    // Look back at the last 24 hours
     const endTime = new Date();
     const startTime = new Date();
     startTime.setHours(startTime.getHours() - 24);
@@ -42,7 +39,6 @@ export async function syncMorningEnergy() {
       },
     });
 
-    // Fallback: If SleepSession isn't in types, we try to fetch it as any
     let sleepMinutes = 0;
     try {
         const sleepResult = await HealthConnect.readRecords({
@@ -69,24 +65,14 @@ export async function syncMorningEnergy() {
 
 function applyEnergyFormula(sleepMinutes: number, stepsRecords: any[]) {
   const state = store.getState();
-
-  // Calculate steps
   const totalSteps = stepsRecords.reduce((total, r: any) => total + (r.count || 0), 0);
 
-  /*
-     Morning Energy Score Algorithm (0-100)
-     Base: 40%
-     Sleep: +10% per hour over 4 hours (max +50% at 9 hours)
-     Steps: -2% for every 2k steps over 10k (fatigue penalty)
-  */
   const sleepBonus = sleepMinutes > 0
     ? Math.min(50, Math.max(0, (sleepMinutes / 60 - 4) * 10))
-    : 20; // Default bonus if sleep not tracked but steps are
+    : 20;
 
   const stepPenalty = totalSteps > 10000 ? Math.floor((totalSteps - 10000) / 2000) * -2 : 0;
-
   const finalScore = Math.min(100, Math.max(0, 40 + sleepBonus + stepPenalty));
-
   const diff = Math.round(finalScore - state.currentEnergy);
 
   if (Math.abs(diff) > 2) {

@@ -78,11 +78,33 @@ export function renderDashboardScreen(navigate: (screen: string) => void) {
   `;
   container.appendChild(sensoryCard);
 
+  const nextEvent = state.calendarEvents
+    .filter(e => e.startTime > Date.now())
+    .sort((a, b) => a.startTime - b.startTime)[0];
+
+  if (nextEvent) {
+    const plannerCard = createCard();
+    plannerCard.style.cursor = 'pointer';
+    plannerCard.addEventListener('click', () => navigate('calendar'));
+    plannerCard.innerHTML = `
+      <div class="stack">
+        <div class="row-between">
+          <h3>Next in Planner</h3>
+          <span class="event-time">${new Date(nextEvent.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+        <p><strong>${nextEvent.icon || '📅'} ${nextEvent.title}</strong></p>
+        ${nextEvent.sensoryProfile && (nextEvent.sensoryProfile.noise > 7) ? '<p class="energy-impact negative">⚠️ High sensory expected</p>' : ''}
+      </div>
+    `;
+    container.appendChild(plannerCard);
+  }
+
   const actions = createCard();
   actions.innerHTML = `
     <div class="stack">
       <h3>Quick actions</h3>
       <div class="quick-grid">
+        <button class="mini-button" data-screen="calendar">Visual planner</button>
         <button class="mini-button" data-screen="tasks">Break down a task</button>
         <button class="mini-button" data-screen="sensory">Log sensory state</button>
         <button class="mini-button" data-screen="energy">Log energy</button>

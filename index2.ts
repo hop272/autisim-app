@@ -59,6 +59,26 @@ export interface RecoveryPlan {
   steps: string[];
 }
 
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  startTime: number;
+  endTime: number;
+  location?: string;
+  description?: string;
+  isSynced: boolean;
+  externalId?: string;
+  sensoryProfile?: {
+    noise: number;
+    light: number;
+    crowding: number;
+    smell?: number;
+    temperature?: number;
+  };
+  energyCost?: number;
+  icon?: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -77,6 +97,7 @@ export interface AppState {
   crisisPlan: CrisisPlan;
   customRecoveryPlans: RecoveryPlan[];
   activeRecoveryPlanId: string | null;
+  calendarEvents: CalendarEvent[];
   healthSyncEnabled: boolean;
   hasSeenHealthOnboarding: boolean;
   today: string;
@@ -101,6 +122,9 @@ export interface AppStore {
   addRecoveryPlan: (plan: Omit<RecoveryPlan, 'id'>) => void;
   removeRecoveryPlan: (id: string) => void;
   setActiveRecoveryPlan: (id: string | null) => void;
+  addCalendarEvent: (event: Omit<CalendarEvent, 'id'>) => void;
+  setCalendarEvents: (events: CalendarEvent[]) => void;
+  updateCalendarEvent: (id: string, update: Partial<CalendarEvent>) => void;
   setHealthSyncEnabled: (enabled: boolean) => void;
   setHasSeenHealthOnboarding: (seen: boolean) => void;
   clearSensoryHistory: () => void;
@@ -193,6 +217,29 @@ function createInitialState(): AppState {
     crisisPlan: defaultCrisisPlan,
     customRecoveryPlans: [],
     activeRecoveryPlanId: null,
+    calendarEvents: [
+      {
+        id: '1',
+        title: 'Supermarket Trip',
+        startTime: Date.now() + 3600000,
+        endTime: Date.now() + 7200000,
+        location: 'Tesco',
+        isSynced: false,
+        icon: '🛒',
+        sensoryProfile: { noise: 8, light: 7, crowding: 9 },
+        energyCost: -20
+      },
+      {
+        id: '2',
+        title: 'Therapy Session',
+        startTime: Date.now() + 86400000,
+        endTime: Date.now() + 86400000 + 3600000,
+        isSynced: false,
+        icon: '🧘',
+        sensoryProfile: { noise: 2, light: 3, crowding: 1 },
+        energyCost: -10
+      }
+    ],
     healthSyncEnabled: false,
     hasSeenHealthOnboarding: false,
     today: new Date().toDateString(),
@@ -249,6 +296,7 @@ export function createAppStore(): AppStore {
             crisisPlan: syncableState.crisisPlan,
             customRecoveryPlans: syncableState.customRecoveryPlans,
             activeRecoveryPlanId: syncableState.activeRecoveryPlanId,
+            calendarEvents: syncableState.calendarEvents,
             healthSyncEnabled: syncableState.healthSyncEnabled,
             hasSeenHealthOnboarding: syncableState.hasSeenHealthOnboarding,
           },
@@ -339,6 +387,19 @@ export function createAppStore(): AppStore {
     setActiveRecoveryPlan: (id: string | null) => {
       setState({ activeRecoveryPlanId: id });
     },
+    addCalendarEvent: (event: Omit<CalendarEvent, 'id'>) => {
+      setState({
+        calendarEvents: [...state.calendarEvents, { ...event, id: Date.now().toString() }]
+      });
+    },
+    setCalendarEvents: (events: CalendarEvent[]) => {
+      setState({ calendarEvents: events });
+    },
+    updateCalendarEvent: (id: string, update: Partial<CalendarEvent>) => {
+      setState({
+        calendarEvents: state.calendarEvents.map(ev => ev.id === id ? { ...ev, ...update } : ev)
+      });
+    },
     setHealthSyncEnabled: (enabled: boolean) => {
       setState({ healthSyncEnabled: enabled });
     },
@@ -371,6 +432,7 @@ export function createAppStore(): AppStore {
               crisisPlan: data.state.crisisPlan,
               customRecoveryPlans: data.state.customRecoveryPlans || [],
               activeRecoveryPlanId: data.state.activeRecoveryPlanId || null,
+              calendarEvents: data.state.calendarEvents || [],
               healthSyncEnabled: data.state.healthSyncEnabled || false,
               hasSeenHealthOnboarding: data.state.hasSeenHealthOnboarding || false,
             });
