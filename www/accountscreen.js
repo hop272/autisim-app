@@ -36,12 +36,12 @@ export function renderAccountScreen(navigate) {
         <p class="muted">Sync your progress and routines across devices.</p>
 
         <div class="field-group">
-          <label style="font-size: 0.85rem; color: var(--text-secondary);">Email</label>
+          <label>Email</label>
           <input type="email" id="auth-email" class="field" placeholder="email@example.com" />
         </div>
 
         <div class="field-group">
-          <label style="font-size: 0.85rem; color: var(--text-secondary);">Password</label>
+          <label>Password</label>
           <input type="password" id="auth-password" class="field" placeholder="••••••••" />
         </div>
 
@@ -159,7 +159,7 @@ export function renderAccountScreen(navigate) {
     preferenceCard.innerHTML += `
     <div class="stack compact">
       <div class="field-group">
-        <label style="font-size: 0.85rem; color: var(--text-secondary);">Daily Energy Goal (%)</label>
+        <label>Daily Energy Goal (%)</label>
         <input type="number" class="field" value="${state.dailyEnergyBudget}" disabled style="background: #fbfcfe;" />
       </div>
     </div>
