@@ -53,6 +53,12 @@ export interface CrisisPlan {
   lastUpdated: number;
 }
 
+export interface RecoveryPlan {
+  id: string;
+  name: string;
+  steps: string[];
+}
+
 export interface User {
   id: string;
   email: string;
@@ -69,6 +75,8 @@ export interface AppState {
   activeTaskId: string | null;
   sensoryLogs: SensoryLog[];
   crisisPlan: CrisisPlan;
+  customRecoveryPlans: RecoveryPlan[];
+  activeRecoveryPlanId: string | null;
   today: string;
   user: User | null;
 }
@@ -88,6 +96,9 @@ export interface AppStore {
   clearTask: (id: string) => void;
   addSensoryLog: (log: Omit<SensoryLog, 'id'>) => void;
   updateCrisisPlan: (plan: Partial<CrisisPlan>) => void;
+  addRecoveryPlan: (plan: Omit<RecoveryPlan, 'id'>) => void;
+  removeRecoveryPlan: (id: string) => void;
+  setActiveRecoveryPlan: (id: string | null) => void;
   clearSensoryHistory: () => void;
   setUser: (user: User | null) => Promise<void>;
   syncToCloud: () => Promise<void>;
@@ -176,6 +187,8 @@ function createInitialState(): AppState {
       },
     ],
     crisisPlan: defaultCrisisPlan,
+    customRecoveryPlans: [],
+    activeRecoveryPlanId: null,
     today: new Date().toDateString(),
     user: null,
   };
@@ -228,6 +241,8 @@ export function createAppStore(): AppStore {
             activeTaskId: syncableState.activeTaskId,
             sensoryLogs: syncableState.sensoryLogs,
             crisisPlan: syncableState.crisisPlan,
+            customRecoveryPlans: syncableState.customRecoveryPlans,
+            activeRecoveryPlanId: syncableState.activeRecoveryPlanId,
           },
           updated_at: new Date().toISOString()
         });
@@ -302,6 +317,20 @@ export function createAppStore(): AppStore {
         crisisPlan: { ...state.crisisPlan, ...plan, lastUpdated: Date.now() },
       });
     },
+    addRecoveryPlan: (plan: Omit<RecoveryPlan, 'id'>) => {
+      setState({
+        customRecoveryPlans: [...state.customRecoveryPlans, { ...plan, id: Date.now().toString() }],
+      });
+    },
+    removeRecoveryPlan: (id: string) => {
+      setState({
+        customRecoveryPlans: state.customRecoveryPlans.filter(p => p.id !== id),
+        activeRecoveryPlanId: state.activeRecoveryPlanId === id ? null : state.activeRecoveryPlanId,
+      });
+    },
+    setActiveRecoveryPlan: (id: string | null) => {
+      setState({ activeRecoveryPlanId: id });
+    },
     clearSensoryHistory: () => {
       setState({ sensoryLogs: [] });
     },
@@ -326,6 +355,8 @@ export function createAppStore(): AppStore {
               activeTaskId: data.state.activeTaskId,
               sensoryLogs: data.state.sensoryLogs,
               crisisPlan: data.state.crisisPlan,
+              customRecoveryPlans: data.state.customRecoveryPlans || [],
+              activeRecoveryPlanId: data.state.activeRecoveryPlanId || null,
             });
           }
         } catch (e) {

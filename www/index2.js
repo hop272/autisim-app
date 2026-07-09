@@ -80,6 +80,8 @@ function createInitialState() {
             },
         ],
         crisisPlan: defaultCrisisPlan,
+        customRecoveryPlans: [],
+        activeRecoveryPlanId: null,
         today: new Date().toDateString(),
         user: null,
     };
@@ -127,6 +129,8 @@ export function createAppStore() {
                     activeTaskId: syncableState.activeTaskId,
                     sensoryLogs: syncableState.sensoryLogs,
                     crisisPlan: syncableState.crisisPlan,
+                    customRecoveryPlans: syncableState.customRecoveryPlans,
+                    activeRecoveryPlanId: syncableState.activeRecoveryPlanId,
                 },
                 updated_at: new Date().toISOString()
             });
@@ -201,6 +205,20 @@ export function createAppStore() {
                 crisisPlan: { ...state.crisisPlan, ...plan, lastUpdated: Date.now() },
             });
         },
+        addRecoveryPlan: (plan) => {
+            setState({
+                customRecoveryPlans: [...state.customRecoveryPlans, { ...plan, id: Date.now().toString() }],
+            });
+        },
+        removeRecoveryPlan: (id) => {
+            setState({
+                customRecoveryPlans: state.customRecoveryPlans.filter(p => p.id !== id),
+                activeRecoveryPlanId: state.activeRecoveryPlanId === id ? null : state.activeRecoveryPlanId,
+            });
+        },
+        setActiveRecoveryPlan: (id) => {
+            setState({ activeRecoveryPlanId: id });
+        },
         clearSensoryHistory: () => {
             setState({ sensoryLogs: [] });
         },
@@ -223,6 +241,8 @@ export function createAppStore() {
                             activeTaskId: data.state.activeTaskId,
                             sensoryLogs: data.state.sensoryLogs,
                             crisisPlan: data.state.crisisPlan,
+                            customRecoveryPlans: data.state.customRecoveryPlans || [],
+                            activeRecoveryPlanId: data.state.activeRecoveryPlanId || null,
                         });
                     }
                 }
