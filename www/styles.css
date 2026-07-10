@@ -25,7 +25,34 @@
 
   --border-color: #e5ebf2;
   --shadow-color: rgba(13, 27, 42, 0.05);
+}
 
+/* Dark Mode Overrides - Using higher specificity with html.dark-mode */
+html.dark-mode {
+  color-scheme: dark;
+  --bg-color: #1a1d1a;        /* Darker Sage Tint */
+  --bg-gradient-end: #121412;
+  --surface-color: #242824;   /* Darker Cream replacement */
+  --text-primary: #e0e0e0;    /* Light Grey */
+  --text-muted: #a0aab8;
+
+  --primary-color: #5d7d65;   /* Darker Sage */
+  --primary-hover: #4c6b54;
+  --secondary-color: #2d3a3a; /* Dark Muted Blue */
+  --secondary-text: #a8bcbc;
+
+  --accent-color: #5d7385;    /* Darker Soft Blue */
+  --success-color: #4d634d;
+  --success-text: #b5d4bc;
+  --danger-color: #7a5555;
+  --danger-text: #f0c5c5;
+
+  --border-color: #353d35;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Ensure the app background and text color always use the variables */
+html, body {
   background: var(--bg-color);
   color: var(--text-primary);
 }

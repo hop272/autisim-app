@@ -56,3 +56,23 @@ export function createSlider(label, value, onChange) {
     row.appendChild(input);
     return row;
 }
+export function renderLoginPrompt(onLoginClick) {
+    const container = document.createElement('div');
+    container.className = 'stack';
+    container.style.padding = '40px 20px';
+    container.style.textAlign = 'center';
+    container.style.alignItems = 'center';
+    const card = createCard();
+    card.innerHTML = `
+      <div class="stack" style="gap: 20px;">
+        <div style="font-size: 4rem;">🔒</div>
+        <h2>Login Required</h2>
+        <p class="muted">To keep your data safe and synced across devices, please sign in to your account.</p>
+        <div id="login-btn-container"></div>
+      </div>
+    `;
+    const loginBtn = createButton('Sign In / Create Account', onLoginClick, 'primary');
+    card.querySelector('#login-btn-container')?.appendChild(loginBtn);
+    container.appendChild(card);
+    return container;
+}

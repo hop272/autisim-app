@@ -122,17 +122,34 @@ export function renderAccountScreen(navigate: (screen: string) => void) {
   settingsList.appendChild(healthRow);
   */
 
-  // Other Placeholders
-  settingsList.innerHTML += `
-    <div class="row-between" style="opacity: 0.6; padding: 8px 0;">
-      <span>Dark Mode</span>
-      <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
-    </div>
-    <div class="row-between" style="opacity: 0.6; padding: 8px 0;">
-      <span>Notification Reminders</span>
-      <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
-    </div>
+  // Other Settings
+  const darkModeRow = document.createElement('div');
+  darkModeRow.className = 'row-between';
+  darkModeRow.style.padding = '8px 0';
+  darkModeRow.innerHTML = `
+    <span>Dark Mode</span>
+    <div id="dark-mode-toggle-container"></div>
   `;
+
+  const darkModeBtn = createButton(state.darkMode ? 'On' : 'Off', () => {
+    store.setDarkMode(!state.darkMode);
+    navigate('account'); // Re-render this screen
+  }, state.darkMode ? 'primary' : 'secondary');
+  darkModeBtn.style.padding = '4px 12px';
+  darkModeBtn.style.fontSize = '0.8rem';
+  darkModeRow.querySelector('#dark-mode-toggle-container')?.appendChild(darkModeBtn);
+
+  settingsList.appendChild(darkModeRow);
+
+  const notificationsRow = document.createElement('div');
+  notificationsRow.className = 'row-between';
+  notificationsRow.style.opacity = '0.6';
+  notificationsRow.style.padding = '8px 0';
+  notificationsRow.innerHTML = `
+    <span>Notification Reminders</span>
+    <div style="background: #eef3f7; width: 40px; height: 20px; border-radius: 20px;"></div>
+  `;
+  settingsList.appendChild(notificationsRow);
 
   settingsCard.appendChild(settingsList);
   container.appendChild(settingsCard);

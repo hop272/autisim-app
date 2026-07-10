@@ -25,87 +25,19 @@ function createInitialState() {
     const defaults = {
         isRecoveryMode: false,
         dailyEnergyBudget: 100,
-        currentEnergy: 72,
-        energyEntries: [
-            {
-                id: '1',
-                timestamp: Date.now() - 7200000,
-                activity: 'Slept 7 hours',
-                activityType: 'rest',
-                cost: 40,
-                note: 'Restful sleep',
-            },
-            {
-                id: '2',
-                timestamp: Date.now() - 3600000,
-                activity: 'Team standup',
-                activityType: 'social',
-                cost: -15,
-                note: 'More people than expected',
-            },
-        ],
+        currentEnergy: 100,
+        energyEntries: [],
         energyPresets: defaultEnergyPresets,
         tasks: [],
         activeTaskId: null,
-        sensoryLogs: [
-            {
-                id: '1',
-                timestamp: Date.now() - 86400000,
-                noise: 7,
-                light: 6,
-                crowding: 8,
-                smell: 4,
-                temperature: 5,
-                clothing: 3,
-                mood: 4,
-                energy: 3,
-                location: 'Supermarket',
-                eventType: 'overload',
-                note: 'Too busy at 5pm',
-            },
-            {
-                id: '2',
-                timestamp: Date.now() - 43200000,
-                noise: 3,
-                light: 4,
-                crowding: 2,
-                smell: 2,
-                temperature: 5,
-                clothing: 7,
-                mood: 7,
-                energy: 7,
-                location: 'Home office',
-                note: 'Comfortable morning',
-            },
-        ],
+        sensoryLogs: [],
         crisisPlan: defaultCrisisPlan,
         customRecoveryPlans: [],
         activeRecoveryPlanId: null,
-        calendarEvents: [
-            {
-                id: '1',
-                title: 'Supermarket Trip',
-                startTime: Date.now() + 3600000,
-                endTime: Date.now() + 7200000,
-                location: 'Tesco',
-                isSynced: false,
-                icon: '🛒',
-                sensoryProfile: { noise: 8, light: 7, crowding: 9 },
-                energyCost: -20
-            },
-            {
-                id: '2',
-                title: 'Therapy Session',
-                startTime: Date.now() + 86400000,
-                endTime: Date.now() + 86400000 + 3600000,
-                isSynced: false,
-                icon: '🧘',
-                sensoryProfile: { noise: 2, light: 3, crowding: 1 },
-                energyCost: -10
-            }
-        ],
+        calendarEvents: [],
         healthSyncEnabled: false,
         hasSeenHealthOnboarding: false,
+        darkMode: false,
         today: new Date().toDateString(),
         user: null,
     };
@@ -133,6 +65,10 @@ function createInitialState() {
 }
 export function createAppStore() {
     let state = createInitialState();
+    // Apply initial theme
+    if (state.darkMode) {
+        document.documentElement.classList.add('dark-mode');
+    }
     const listeners = new Set();
     let isSyncing = false;
     let skipNextSync = false;
@@ -180,6 +116,7 @@ export function createAppStore() {
                     calendarEvents: syncableState.calendarEvents,
                     healthSyncEnabled: syncableState.healthSyncEnabled,
                     hasSeenHealthOnboarding: syncableState.hasSeenHealthOnboarding,
+                    darkMode: syncableState.darkMode,
                 },
                 updated_at: new Date().toISOString()
             });
@@ -297,6 +234,15 @@ export function createAppStore() {
         setHasSeenHealthOnboarding: (seen) => {
             setState({ hasSeenHealthOnboarding: seen });
         },
+        setDarkMode: (enabled) => {
+            setState({ darkMode: enabled });
+            if (enabled) {
+                document.documentElement.classList.add('dark-mode');
+            }
+            else {
+                document.documentElement.classList.remove('dark-mode');
+            }
+        },
         clearSensoryHistory: () => {
             setState({ sensoryLogs: [] });
         },
@@ -325,7 +271,15 @@ export function createAppStore() {
                             calendarEvents: data.state.calendarEvents || [],
                             healthSyncEnabled: data.state.healthSyncEnabled || false,
                             hasSeenHealthOnboarding: data.state.hasSeenHealthOnboarding || false,
+                            darkMode: data.state.darkMode || false,
                         });
+                        // Apply theme after cloud sync
+                        if (data.state.darkMode) {
+                            document.documentElement.classList.add('dark-mode');
+                        }
+                        else {
+                            document.documentElement.classList.remove('dark-mode');
+                        }
                     }
                 }
                 catch (e) {

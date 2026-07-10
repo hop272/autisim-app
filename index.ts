@@ -7,7 +7,7 @@ import { renderSensoryScreen } from './sensoryscreen.js';
 import { renderTaskScreen } from './taskscreen.js';
 import { renderAccountScreen } from './accountscreen.js';
 import { renderCalendarScreen } from './calendarscreen.js';
-import { createButton, createCard } from './ui.js';
+import { createButton, createCard, renderLoginPrompt } from './ui.js';
 import { store } from './index2.js';
 import { supabase } from './supabase.js';
 
@@ -119,43 +119,52 @@ function renderShell() {
 
   const content = document.createElement('main');
   content.className = 'screen-content';
-  switch (currentScreen) {
-    case 'dashboard':
-      content.appendChild(renderDashboardScreen((screen: string) => {
-        currentScreen = screen as ScreenName;
-        renderShell();
+
+  const protectedScreens: ScreenName[] = ['dashboard', 'tasks', 'sensory', 'energy', 'recovery', 'calendar'];
+  if (protectedScreens.includes(currentScreen) && !state.user) {
+      content.appendChild(renderLoginPrompt(() => {
+          currentScreen = 'account';
+          renderShell();
       }));
-      break;
-    case 'tasks':
-      content.appendChild(renderTaskScreen((screen: string) => {
-        currentScreen = screen as ScreenName;
-        renderShell();
-      }));
-      break;
-    case 'sensory':
-      content.appendChild(renderSensoryScreen((screen: string) => {
-        currentScreen = screen as ScreenName;
-        renderShell();
-      }));
-      break;
-    case 'energy':
-      content.appendChild(renderEnergyScreen((screen: string) => {
-        currentScreen = screen as ScreenName;
-        renderShell();
-      }));
-      break;
-    case 'recovery':
-      content.appendChild(renderRecoveryScreen((screen: string) => {
-        currentScreen = screen as ScreenName;
-        renderShell();
-      }));
-      break;
-    case 'calendar':
-      content.appendChild(renderCalendarScreen((screen: string) => {
-        currentScreen = screen as ScreenName;
-        renderShell();
-      }));
-      break;
+  } else {
+      switch (currentScreen) {
+          case 'dashboard':
+              content.appendChild(renderDashboardScreen((screen: string) => {
+                  currentScreen = screen as ScreenName;
+                  renderShell();
+              }));
+              break;
+          case 'tasks':
+              content.appendChild(renderTaskScreen((screen: string) => {
+                  currentScreen = screen as ScreenName;
+                  renderShell();
+              }));
+              break;
+          case 'sensory':
+              content.appendChild(renderSensoryScreen((screen: string) => {
+                  currentScreen = screen as ScreenName;
+                  renderShell();
+              }));
+              break;
+          case 'energy':
+              content.appendChild(renderEnergyScreen((screen: string) => {
+                  currentScreen = screen as ScreenName;
+                  renderShell();
+              }));
+              break;
+          case 'recovery':
+              content.appendChild(renderRecoveryScreen((screen: string) => {
+                  currentScreen = screen as ScreenName;
+                  renderShell();
+              }));
+              break;
+          case 'calendar':
+              content.appendChild(renderCalendarScreen((screen: string) => {
+                  currentScreen = screen as ScreenName;
+                  renderShell();
+              }));
+              break;
+      }
   }
 
   app.appendChild(header);
