@@ -94,30 +94,25 @@ export function renderAccountScreen(navigate) {
     settingsCard.appendChild(createSectionHeader('App Settings', 'Customise your experience.'));
     const settingsList = document.createElement('div');
     settingsList.className = 'stack compact';
-    // Health Sync Toggle removed from active settings
-    /*
+    // Health Sync Toggle
     const healthRow = document.createElement('div');
     healthRow.className = 'row-between';
     healthRow.style.padding = '8px 0';
     healthRow.innerHTML = `
-      <span>Health Sync (Samsung Health)</span>
-      <div id="health-toggle-container"></div>
-    `;
-  
+    <span>Health Sync (Heart Rate & Steps)</span>
+    <div id="health-toggle-container"></div>
+  `;
     const toggleBtn = createButton(state.healthSyncEnabled ? 'Enabled' : 'Disabled', () => {
-      store.setHealthSyncEnabled(!state.healthSyncEnabled);
-      if (!state.healthSyncEnabled) {
-        // If we are turning it on for the first time or from settings
-        store.setHasSeenHealthOnboarding(true);
-      }
-      navigate('account'); // Re-render this screen
+        store.setHealthSyncEnabled(!state.healthSyncEnabled);
+        if (!state.healthSyncEnabled) {
+            store.setHasSeenHealthOnboarding(true);
+        }
+        navigate('account');
     }, state.healthSyncEnabled ? 'primary' : 'secondary');
     toggleBtn.style.padding = '4px 12px';
     toggleBtn.style.fontSize = '0.8rem';
     healthRow.querySelector('#health-toggle-container')?.appendChild(toggleBtn);
-  
     settingsList.appendChild(healthRow);
-    */
     // Other Settings
     const darkModeRow = document.createElement('div');
     darkModeRow.className = 'row-between';
@@ -152,14 +147,6 @@ export function renderAccountScreen(navigate) {
     const comingSoonList = document.createElement('div');
     comingSoonList.className = 'stack compact';
     comingSoonList.innerHTML = `
-    <div class="row-between" style="padding: 8px 0;">
-      <span>Samsung Health Sync</span>
-      <span class="badge badge-default" style="font-size: 0.7rem;">Planned</span>
-    </div>
-    <div class="row-between" style="padding: 8px 0;">
-      <span>Smart Watch Integration</span>
-      <span class="badge badge-default" style="font-size: 0.7rem;">Planned</span>
-    </div>
     <div class="row-between" style="padding: 8px 0;">
       <span>Custom Themes</span>
       <span class="badge badge-default" style="font-size: 0.7rem;">Planned</span>

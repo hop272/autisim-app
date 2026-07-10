@@ -10,6 +10,7 @@ import { renderCalendarScreen } from './calendarscreen.js';
 import { createButton, createCard, renderLoginPrompt } from './ui.js';
 import { store } from './index2.js';
 import { supabase } from './supabase.js';
+import { syncMorningEnergy } from './healthService.js';
 
 const getRoot = () => document.getElementById('app');
 let currentScreen: ScreenName = 'dashboard';
@@ -25,6 +26,17 @@ async function initSession() {
         name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
         imageUrl: '👤'
       });
+
+/*
+      // Auto-sync health data on init if enabled
+      const state = store.getState();
+      if (state.healthSyncEnabled) {
+          // Wrap in timeout to prevent startup blocking or race conditions
+          setTimeout(() => {
+              syncMorningEnergy().catch(e => console.error('Background Health Sync Error:', e));
+          }, 2000);
+      }
+*/
     }
   } catch (e) {
     console.error('Session init error:', e);
@@ -190,8 +202,19 @@ function renderShell() {
 }
 
 // Initial render
-renderShell();
-store.subscribe(() => renderShell());
+try {
+  renderShell();
+} catch (e) {
+  console.error('Initial render failed:', e);
+}
+
+store.subscribe(() => {
+  try {
+    renderShell();
+  } catch (e) {
+    console.error('Shell re-render failed:', e);
+  }
+});
 
 // Background session init
 initSession();

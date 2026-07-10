@@ -25,6 +25,35 @@ export function renderDashboardScreen(navigate) {
     const container = document.createElement('div');
     container.className = 'screen-card';
     container.appendChild(createSectionHeader('Today at a glance', 'A calm cockpit for energy, tasks, and sensory state.'));
+    // Early Warning Banner (§3.6)
+    if (state.overloadRisk && state.overloadRisk !== 'low') {
+        const warningBanner = createCard();
+        const isHigh = state.overloadRisk === 'high';
+        warningBanner.style.backgroundColor = isHigh ? '#FFF5F5' : '#FFFBEB';
+        warningBanner.style.borderColor = isHigh ? '#FEB2B2' : '#FDE68A';
+        warningBanner.style.marginBottom = '16px';
+        warningBanner.innerHTML = `
+      <div class="row-between">
+        <div class="stack compact">
+          <h4 style="color: ${isHigh ? '#C53030' : '#92400E'}; margin: 0;">
+            ${isHigh ? '⚠️ High Overload Risk' : '💡 Moderate Overload Risk'}
+          </h4>
+          <p class="muted" style="font-size: 0.85rem; margin: 0;">
+            ${isHigh
+            ? 'Multiple stress indicators detected. Consider entering Recovery Mode now.'
+            : 'Your data suggests you might be heading toward overwhelm. Take a sensory break?'}
+          </p>
+        </div>
+        ${isHigh ? createButton('Recovery', () => navigate('recovery'), 'primary').outerHTML : ''}
+      </div>
+    `;
+        // If it's high, the button HTML above won't have the event listener, so I need to re-bind or do it differently.
+        const recoveryBtn = warningBanner.querySelector('button');
+        if (recoveryBtn) {
+            recoveryBtn.addEventListener('click', () => navigate('recovery'));
+        }
+        container.appendChild(warningBanner);
+    }
     const energyCard = createCard();
     energyCard.style.cursor = 'pointer';
     energyCard.addEventListener('click', () => navigate('energy'));

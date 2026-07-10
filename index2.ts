@@ -97,6 +97,7 @@ export interface AppState {
   isRecoveryMode: boolean;
   dailyEnergyBudget: number;
   currentEnergy: number;
+  overloadRisk: 'low' | 'moderate' | 'high';
   energyEntries: EnergyEntry[];
   energyPresets: EnergyPreset[];
   tasks: Task[];
@@ -139,6 +140,7 @@ export interface AppStore {
   setHealthSyncEnabled: (enabled: boolean) => void;
   setHasSeenHealthOnboarding: (seen: boolean) => void;
   setDarkMode: (enabled: boolean) => void;
+  setOverloadRisk: (risk: 'low' | 'moderate' | 'high') => void;
   clearSensoryHistory: () => void;
   setUser: (user: User | null) => Promise<void>;
   syncToCloud: () => Promise<void>;
@@ -174,6 +176,7 @@ function createInitialState(): AppState {
     isRecoveryMode: false,
     dailyEnergyBudget: 100,
     currentEnergy: 100,
+    overloadRisk: 'low',
     energyEntries: [],
     energyPresets: defaultEnergyPresets,
     tasks: [],
@@ -230,15 +233,25 @@ export function createAppStore(): AppStore {
   };
 
   const setState = (update: Partial<AppState> | ((prev: AppState) => Partial<AppState>)) => {
-    const next = typeof update === 'function' ? update(state) : update;
-    state = { ...state, ...next };
-    saveToStorage(state);
-    listeners.forEach(listener => listener(state));
+    try {
+      const next = typeof update === 'function' ? update(state) : update;
+      state = { ...state, ...next };
+      saveToStorage(state);
+      listeners.forEach(listener => {
+        try {
+          listener(state);
+        } catch (e) {
+          console.error('Listener error:', e);
+        }
+      });
 
-    if (state.user && !skipNextSync) {
-      debounceSync();
+      if (state.user && !skipNextSync) {
+        debounceSync();
+      }
+      skipNextSync = false;
+    } catch (e) {
+      console.error('Critical State Error:', e);
     }
-    skipNextSync = false;
   };
 
   let syncTimeout: any = null;
@@ -273,6 +286,7 @@ export function createAppStore(): AppStore {
             healthSyncEnabled: syncableState.healthSyncEnabled,
             hasSeenHealthOnboarding: syncableState.hasSeenHealthOnboarding,
             darkMode: syncableState.darkMode,
+            overloadRisk: syncableState.overloadRisk,
           },
           updated_at: new Date().toISOString()
         });
@@ -398,6 +412,9 @@ export function createAppStore(): AppStore {
         document.documentElement.classList.remove('dark-mode');
       }
     },
+    setOverloadRisk: (risk: 'low' | 'moderate' | 'high') => {
+      setState({ overloadRisk: risk });
+    },
     clearSensoryHistory: () => {
       setState({ sensoryLogs: [] });
     },
@@ -429,6 +446,7 @@ export function createAppStore(): AppStore {
               healthSyncEnabled: data.state.healthSyncEnabled || false,
               hasSeenHealthOnboarding: data.state.hasSeenHealthOnboarding || false,
               darkMode: data.state.darkMode || false,
+              overloadRisk: data.state.overloadRisk || 'low',
             });
 
             // Apply theme after cloud sync

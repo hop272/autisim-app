@@ -21,6 +21,16 @@ async function initSession() {
                 name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
                 imageUrl: '👤'
             });
+            /*
+                  // Auto-sync health data on init if enabled
+                  const state = store.getState();
+                  if (state.healthSyncEnabled) {
+                      // Wrap in timeout to prevent startup blocking or race conditions
+                      setTimeout(() => {
+                          syncMorningEnergy().catch(e => console.error('Background Health Sync Error:', e));
+                      }, 2000);
+                  }
+            */
         }
     }
     catch (e) {
@@ -169,7 +179,19 @@ function renderShell() {
     root.appendChild(app);
 }
 // Initial render
-renderShell();
-store.subscribe(() => renderShell());
+try {
+    renderShell();
+}
+catch (e) {
+    console.error('Initial render failed:', e);
+}
+store.subscribe(() => {
+    try {
+        renderShell();
+    }
+    catch (e) {
+        console.error('Shell re-render failed:', e);
+    }
+});
 // Background session init
 initSession();

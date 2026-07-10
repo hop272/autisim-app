@@ -26,6 +26,7 @@ function createInitialState() {
         isRecoveryMode: false,
         dailyEnergyBudget: 100,
         currentEnergy: 100,
+        overloadRisk: 'low',
         energyEntries: [],
         energyPresets: defaultEnergyPresets,
         tasks: [],
@@ -76,14 +77,26 @@ export function createAppStore() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
     };
     const setState = (update) => {
-        const next = typeof update === 'function' ? update(state) : update;
-        state = { ...state, ...next };
-        saveToStorage(state);
-        listeners.forEach(listener => listener(state));
-        if (state.user && !skipNextSync) {
-            debounceSync();
+        try {
+            const next = typeof update === 'function' ? update(state) : update;
+            state = { ...state, ...next };
+            saveToStorage(state);
+            listeners.forEach(listener => {
+                try {
+                    listener(state);
+                }
+                catch (e) {
+                    console.error('Listener error:', e);
+                }
+            });
+            if (state.user && !skipNextSync) {
+                debounceSync();
+            }
+            skipNextSync = false;
         }
-        skipNextSync = false;
+        catch (e) {
+            console.error('Critical State Error:', e);
+        }
     };
     let syncTimeout = null;
     const debounceSync = () => {
@@ -117,6 +130,7 @@ export function createAppStore() {
                     healthSyncEnabled: syncableState.healthSyncEnabled,
                     hasSeenHealthOnboarding: syncableState.hasSeenHealthOnboarding,
                     darkMode: syncableState.darkMode,
+                    overloadRisk: syncableState.overloadRisk,
                 },
                 updated_at: new Date().toISOString()
             });
@@ -243,6 +257,9 @@ export function createAppStore() {
                 document.documentElement.classList.remove('dark-mode');
             }
         },
+        setOverloadRisk: (risk) => {
+            setState({ overloadRisk: risk });
+        },
         clearSensoryHistory: () => {
             setState({ sensoryLogs: [] });
         },
@@ -272,6 +289,7 @@ export function createAppStore() {
                             healthSyncEnabled: data.state.healthSyncEnabled || false,
                             hasSeenHealthOnboarding: data.state.hasSeenHealthOnboarding || false,
                             darkMode: data.state.darkMode || false,
+                            overloadRisk: data.state.overloadRisk || 'low',
                         });
                         // Apply theme after cloud sync
                         if (data.state.darkMode) {
