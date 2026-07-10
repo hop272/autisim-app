@@ -22,6 +22,27 @@ export const supabase = new Proxy({}, {
   get: (target, prop) => {
     const c = getSupabase();
     if (c) return c[prop];
-    return () => { console.error('Supabase not available'); return { error: { message: 'Supabase not available' } }; };
+
+    // Return a dummy object that handles common Supabase patterns to avoid crashes
+    if (prop === 'auth') {
+      return {
+        getSession: async () => ({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+      };
+    }
+
+    const dummyFunc = () => {
+      console.error('Supabase not available');
+      return {
+        error: { message: 'Supabase not available' },
+        data: null,
+        select: () => dummyFunc(),
+        from: () => dummyFunc(),
+        eq: () => dummyFunc(),
+        single: () => dummyFunc(),
+        upsert: () => dummyFunc(),
+      };
+    };
+    return dummyFunc;
   }
 }) as any;

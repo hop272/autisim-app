@@ -11,26 +11,30 @@ import { createButton, createCard } from './ui.js';
 import { store } from './index2.js';
 import { supabase } from './supabase.js';
 
-const root = document.getElementById('app');
+const getRoot = () => document.getElementById('app');
 let currentScreen: ScreenName = 'dashboard';
 
 // Initialize session and sync
 async function initSession() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    await store.setUser({
-      id: session.user.id,
-      email: session.user.email || '',
-      name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
-      imageUrl: '👤'
-    });
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await store.setUser({
+        id: session.user.id,
+        email: session.user.email || '',
+        name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
+        imageUrl: '👤'
+      });
+    }
+  } catch (e) {
+    console.error('Session init error:', e);
   }
 }
 
-initSession();
-
 function renderShell() {
+  const root = getRoot();
   if (!root) {
+    console.error('Root element #app not found');
     return;
   }
 
@@ -176,5 +180,9 @@ function renderShell() {
   root.appendChild(app);
 }
 
+// Initial render
 renderShell();
 store.subscribe(() => renderShell());
+
+// Background session init
+initSession();
