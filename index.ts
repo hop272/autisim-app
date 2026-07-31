@@ -95,7 +95,7 @@ function renderShell() {
     <div>
       <p class="eyebrow">Autism support app</p>
       <h1>Daily support</h1>
-      <p class="subtle">Calm tools for energy, sensory regulation, and recovery.</p>
+      <p class="subtle">This is placeholder text please change </p>
     </div>
   `;
 

@@ -15,7 +15,7 @@ export function renderEnergyScreen(navigate: (screen: string) => void) {
 
   const container = document.createElement('div');
   container.className = 'screen-card';
-  container.appendChild(createSectionHeader('Energy budgeting', 'Track activities as energy costs and keep the day sustainable.'));
+  container.appendChild(createSectionHeader('Energy budgeting', 'This is place holder text please change '));
 
   const main = createCard();
   // ... (unchanged part)

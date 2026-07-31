@@ -29,7 +29,7 @@ export function renderRecoveryScreen(navigate: (screen: string) => void) {
     return container;
   }
 
-  container.appendChild(createSectionHeader('Recovery mode', 'A calm, minimal layer for overwhelm and shutdown.'));
+  container.appendChild(createSectionHeader('Recovery mode', 'this is place holder text please change.'));
 
   // Active Plan Selection
   const planSelectionCard = createCard();
@@ -67,7 +67,7 @@ export function renderRecoveryScreen(navigate: (screen: string) => void) {
   activateCard.innerHTML = `
     <div class="stack">
       <h3>Feeling overwhelmed?</h3>
-      <p class="muted">Switch to a higher-contrast, one-step-at-a-time view that reduces decision load.</p>
+      <p class="muted">Cick on the button below to enter recovery mode.</p>
     </div>
   `;
   activateCard.querySelector('.stack')?.appendChild(createButton('Enter recovery mode', () => store.toggleRecoveryMode()));
