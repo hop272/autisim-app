@@ -3,6 +3,13 @@
 please feel free to edit this and commit changes <h1>
 
 
+#### 
+
+My initial idea was to create an android app that would benefit autistic pepole like myself in day to day life 
+
+
+
+
 # Autism support app
 
 
