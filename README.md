@@ -1,4 +1,12 @@
+
+<h1> This Is my badly vibe coded app 
+please feel free to edit this and commit changes <h1>
+
+
 # Autism support app
+
+
+
 
 This project is now structured as a local Android app using a native wrapper, so it runs as an app on Android rather than as a web page in a browser. It stays close to the MVP direction in docs1.txt: task breakdown, sensory check-ins, energy budgeting, and recovery mode.
 
